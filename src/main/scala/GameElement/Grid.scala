@@ -33,10 +33,11 @@ object Grid
     * @param newSquareState : the new value of the element to be changed
     * @return : a new grid with the value of the element updated
     */
-  def updateGrid(oldGrid : Grid, squarePosition:Position, newSquareState : Int) : List[List[Int]] =
+  def updateGrid(oldGrid : Grid, squarePosition:Position, newSquareState : Int) : Grid =
   {
 
-    oldGrid.grid.updated(squarePosition.x,oldGrid.grid(squarePosition.x).updated(squarePosition.y,newSquareState))
+    val newGrid = oldGrid.grid.updated(squarePosition.x,oldGrid.grid(squarePosition.x).updated(squarePosition.y,newSquareState))
+    Grid(newGrid)
 
   }
 
