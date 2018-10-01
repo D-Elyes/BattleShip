@@ -3,20 +3,23 @@ package GameElement
 import scala.annotation.tailrec
 
 /**
-  *
-  * @param fleet
-  * @param ownGrid
-  * @param enemyGrid
+  *this class represents a player.
+  * This class will handle the action of the player.
+  * It will place the ships of the player on his grid, update the grids during the game
+  * @param fleet : the fleet of the player coposed of his ships and its position on the grid
+  * @param ownGrid : the grid of the player where he will put his ships and the result of the enemy shots
+  * @param enemyGrid : the enemy grid where player will put the results of his shots
   */
 case class Player(fleet : List[(List[Position],Ship)], ownGrid : Grid, enemyGrid : Grid)
 
 object Player
 {
   /**
-    *
-    * @param player
-    * @param fleetElement
-    * @return
+    *This function will add the ship of the player on the grid
+    * @param player : The player that will place the ships
+    * @param fleetElement : the fleet of the player composed by the ships and their position
+    * @return : player with his greed containing his ships (the element of the listing containing a square of the
+    *         ship is equal to 0)
     */
   def addShip(player : Player, fleetElement : (List[Position],Ship)): Player =
   {
@@ -38,10 +41,10 @@ object Player
   }
 
   /**
-    *
-    * @param player
-    * @param positions
-    * @return
+    *check if the square in the position passed in parameters are already occupied or not
+    * @param player : the player whose grid nthat we are testing, belongs to
+    * @param positions : the positions we want to check
+    * @return : true if one of the position is occupied and false if none of them are occupied
     */
   def occupiedPosition(player : Player,positions : List[Position]): Boolean =
   {
@@ -61,10 +64,10 @@ object Player
   }
 
   /**
-    *
-    * @param player
-    * @param shotPosition
-    * @return
+    *This function updates the gird of the player who received the missed shot,
+    * @param player : the player who received the shot
+    * @param shotPosition : the position where the shot landed
+    * @return : a player with his grid updated
     */
   def receiveMissShot(player : Player, shotPosition : Position) : Player = {
       val newOwnGrid = Grid.updateGrid(player.ownGrid, shotPosition, 1)
@@ -72,10 +75,10 @@ object Player
   }
 
   /**
-    *
-    * @param player
-    * @param shotPosition
-    * @return
+    *This function updates the gird of the player who received the missed shot
+    * @param player : the player who received the shot
+    * @param shotPosition : the position where the shot landed
+    * @return : a player with his grid updated
     */
   def receiveSuccessShot(player : Player, shotPosition : Position) : Player =
   {
@@ -94,10 +97,11 @@ object Player
   }
 
   /**
-    *
-    * @param player
-    * @param shotPosition
-    * @return
+    * this function update the grid of the player's enemy, the one where he records his shots.
+    * It is called when the player make a miss shot
+    * @param player : the player whio makes the shot
+    * @param shotPosition : the position of the shot
+    * @return : player with his enemy grid updated
     */
   def missShot(player : Player, shotPosition : Position) : Player =
   {
@@ -106,10 +110,11 @@ object Player
   }
 
   /**
-    *
-    * @param player
-    * @param shotPosition
-    * @return
+    * this function update the grid of the player's enemy, the one where he records his shots.
+    * It is called when the player make a success shot
+    * @param player : the player whio makes the shot
+    * @param shotPosition : the position of the shot
+    * @return : player with his enemy grid updated
     */
   def successShot(player : Player, shotPosition : Position) : Player =
   {
@@ -118,10 +123,10 @@ object Player
   }
 
   /**
-    *
-    * @param player
-    * @param shotPosition
-    * @return
+    * this function checks if a ship has been destroyed or not every time one of his squares got touched
+    * @param player : the player whose ship belongs to
+    * @param shotPosition : the position of the ship sqaure that has been damaged
+    * @return : boolean true if its not destroyed and false if it is
     */
   def checkShipState(player : Player, shotPosition : Position) : Boolean =
   {

@@ -1,7 +1,5 @@
 package GameElement
 
-import scala.collection.mutable.ListBuffer
-
 /**
   * This is the grid of the game
   *
