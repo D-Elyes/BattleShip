@@ -7,7 +7,7 @@ import org.scalatest.{FlatSpec, Matchers}
   * This class is for testing the Grid class
   */
 class GridTest extends  FlatSpec with Matchers{
-  val grid : Grid = Grid(Grid.initilizingGrid())
+  val grid : Grid = Grid()
 
   /**
     * Heer we test the initialization of the grid
@@ -22,8 +22,8 @@ class GridTest extends  FlatSpec with Matchers{
     */
   "Grid" should "update its element" in
   {
-    val newGrid = Grid.updateGrid(grid,Position(1,1),0)
-    newGrid.grid(1)(1) should be (0)
+    val newGrid = Grid.updateGrid(grid,Position(1,1),2)
+    newGrid.grid(1)(1) should be (2)
   }
 
 }

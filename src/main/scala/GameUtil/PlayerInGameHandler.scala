@@ -1,0 +1,6 @@
+package GameUtil
+
+object PlayerInGameHandler {
+  
+
+}

@@ -28,7 +28,7 @@ object Player
     {
       if(index == fleetElement._1.size)
         {
-          player.copy(fleetElement :: player.fleet)
+          player.copy( player.fleet :+ fleetElement)
         }
       else
         {
@@ -106,7 +106,7 @@ object Player
   def missShot(player : Player, shotPosition : Position) : Player =
   {
     val newEnemyGrid = Grid.updateGrid(player.enemyGrid, shotPosition, 1)
-    player.copy(ownGrid = newEnemyGrid)
+    player.copy(enemyGrid = newEnemyGrid)
   }
 
   /**
@@ -119,7 +119,7 @@ object Player
   def successShot(player : Player, shotPosition : Position) : Player =
   {
     val newEnemyGrid = Grid.updateGrid(player.enemyGrid, shotPosition, 2)
-    player.copy(ownGrid = newEnemyGrid)
+    player.copy(enemyGrid = newEnemyGrid)
   }
 
   /**

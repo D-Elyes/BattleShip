@@ -18,9 +18,9 @@ object Grid
     * Initialize a grid. As a grid contains nothing at the beginning all of its elements contains -1
     * @param grid : the grid we want to initilize
     */
-  def initilizingGrid() : List[List[Int]]=
+  def apply() : Grid =
   {
-    List.fill(10)(List.fill(10)(-1))
+    new Grid(List.fill(10)(List.fill(10)(-1)))
   }
 
 
