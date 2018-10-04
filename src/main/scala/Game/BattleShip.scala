@@ -2,10 +2,9 @@ package Game
 
 import GameElement.{Player}
 import GameInterface.Render
-import GameUtil.{RoundUtil}
+import GameUtilities.{RoundUtil,GameUtil}
 
 import scala.annotation.tailrec
-import scala.io.StdIn
 
 object BattleShip extends App {
 
@@ -18,13 +17,13 @@ object BattleShip extends App {
 
   def Game()
   {
-    println("Welcome to Battle Ship")
+    println("Welcome to Battle Ship\n\n")
     mainLoop()
     @tailrec
     def mainLoop(): Unit =
     {
       Render.menuRederer()
-      val gameModeChoice = StdIn.readLine()
+      val gameModeChoice = GameUtil.gameModeChoice()
       gameModeChoice match
       {
         case "1" =>{
@@ -36,7 +35,7 @@ object BattleShip extends App {
           println("Au Revoir!!!!!!!!!")
         }
         case _ =>{
-          println("Choice error !!!! choose one of the option by entering its number (1,2,3,4 or 5)")
+          println("Choice error !!!! choose one of the option by entering its number (1,2,3 or 4)")
           mainLoop()
         }
       }

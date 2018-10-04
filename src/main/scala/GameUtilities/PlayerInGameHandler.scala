@@ -1,4 +1,4 @@
-package GameUtil
+package GameUtilities
 
 import GameElement.{Grid, Player, Position, Ship}
 import GameInterface.Render
@@ -7,9 +7,9 @@ import scala.annotation.tailrec
 import scala.io.StdIn
 
 /**
-  * This class defines the function that will handle the interaction with the player
+  * This class defines the function that will handle the interaction with the player as a user
   */
-object PlayerInGameHandler {
+object PlayerInGameHandler extends InGameHandler {
 
   /**
     * Generate the list of positions of a ship starting with a position the the user typed and according to an orientation
@@ -168,7 +168,7 @@ object PlayerInGameHandler {
     val line = seizeLineNumberShip()
     val column = seizeColomnNumberShip()
     val orientation = seizeOrientationShip()
-    if(positionLimitsCheck(Position(line,column),orientation,shipSize))
+    if(GameUtil.positionLimitsCheck(Position(line,column),orientation,shipSize))
       {
         val positions = generateShipPosition(orientation,shipSize,Position(line,column))
         if(!Player.occupiedPosition(player,positions))
@@ -217,23 +217,7 @@ object PlayerInGameHandler {
     generatePlayerWithItsShipTailRec(player,0)
   }
 
-  /**
-    * Check with the initial position and the orientation of the ship if this one is still in the limits of the grid
-    * @param p : the initial position
-    * @param orientation : the orientation the player wants to place its ship
-    * @param sizeShip : the size of the ship
-    * @return : true if the position of the ship is still in the limits of the grid, else false
-    */
-  def positionLimitsCheck(p : Position, orientation: String,sizeShip : Int) : Boolean =
-  {
-    orientation match
-    {
-      case "HR" => p.y + (sizeShip - 1) <10
-      case "HL" => p.y - (sizeShip - 1) > (-1)
-      case "VU" => p.x - (sizeShip - 1) > (-1)
-      case "VD" => p.x + (sizeShip - 1) <10
-    }
-  }
+
 
   /**
     *
@@ -255,31 +239,4 @@ object PlayerInGameHandler {
       position
     }
   }
-
-  /**
-    *
-    * @return
-    */
-  @tailrec
-  def endGameInput(): Boolean =
-  {
-    println("Do you want to play again? (y for yes, n for no)")
-    val choice = StdIn.readLine().toUpperCase
-    choice match
-    {
-      case "Y" => true
-      case "N" => false
-      case _ =>{
-        println("Wrond input !!! please type Y for yes or N for no")
-        endGameInput()
-      }
-    }
-  }
-
-
-
-
-
-
-
 }

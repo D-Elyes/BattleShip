@@ -1,0 +1,5 @@
+package GameUtilities
+
+object AiInGameHandler {
+
+}

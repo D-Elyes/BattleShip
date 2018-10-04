@@ -2,7 +2,7 @@ package GameUtilTest
 
 import GameElement.Position
 import org.scalatest.{FlatSpec, Matchers}
-import GameUtil.PlayerInGameHandler
+import GameUtilities.PlayerInGameHandler
 
 class PlayerInGameHandlerTest extends FlatSpec with Matchers {
 

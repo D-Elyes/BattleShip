@@ -1,6 +1,7 @@
-package GameUtil
+package GameUtilities
 
 import Game.BattleShip.{Game, GameState, shipClass}
+import _root_.Game.BattleShip
 import GameElement.Player
 import GameInterface.Render
 
@@ -66,7 +67,7 @@ object RoundUtil {
           else
           {
             println("Congratulation !!! you just destroyed the enemy's last ship!!!!")
-            val repeat = PlayerInGameHandler.endGameInput()
+            val repeat = GameUtil.endGameInput()
             if(repeat)
             {
               if(turn == 0)
