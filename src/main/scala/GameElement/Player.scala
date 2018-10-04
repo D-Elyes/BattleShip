@@ -133,4 +133,18 @@ object Player
     val shipToCheck = player.fleet.filter(x => x._1.contains(shotPosition))(0)
     shipToCheck._2.operational
   }
+
+  /**
+    * Check if the fleet is destroyed or not
+    * @param fleet : the fleet we want to check
+    * @return : false if the fleet is destroyed, else return true
+    */
+    @tailrec
+    def checkFleetState(fleet: List[(List[Position],Ship)]) : Boolean =
+    {
+      if(fleet.size>0)
+       fleet.head._2.operational || checkFleetState(fleet.tail)
+      else
+        false
+    }
 }

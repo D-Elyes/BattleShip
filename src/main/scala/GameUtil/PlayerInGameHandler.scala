@@ -1,10 +1,14 @@
 package GameUtil
 
-import GameElement.Position
+import GameElement.{Grid, Player, Position, Ship}
+import GameInterface.Render
 
 import scala.annotation.tailrec
 import scala.io.StdIn
 
+/**
+  * This class defines the function that will handle the interaction with the player
+  */
 object PlayerInGameHandler {
 
   /**
@@ -55,7 +59,7 @@ object PlayerInGameHandler {
   @tailrec
   def seizeLineNumberShip() : Int =
   {
-    println("On which line you want to place the ship")
+    println("Choose the Line number : ")
     val x = StdIn.readLine()
     if(toInt(x) == None)
     {
@@ -83,7 +87,7 @@ object PlayerInGameHandler {
   @tailrec
   def seizeColomnNumberShip():Int =
   {
-    println("On which column you want to place your ship?")
+    println("Choose column : ")
     println("(A,B,C,D,E,F,G,H,I,J)")
     val column = StdIn.readLine().toUpperCase()
     column match
@@ -150,6 +154,106 @@ object PlayerInGameHandler {
         seizeOrientationShip()
       }
   }
+
+  /**
+    * This function will generate the ship with its corresponding positions
+    * @param shipSize : the shize of the ship to generate
+    * @param player : the player who places the ship
+    * @return : a tuple of list of positions and the ship
+    */
+  @tailrec
+  def generateShipWithPosition(shipSize : Int, player : Player) : (List[Position],Ship) =
+  {
+    val ship = Ship(true,shipSize)
+    val line = seizeLineNumberShip()
+    val column = seizeColomnNumberShip()
+    val orientation = seizeOrientationShip()
+    if(positionLimitsCheck(Position(line,column),orientation,shipSize))
+      {
+        val positions = generateShipPosition(orientation,shipSize,Position(line,column))
+        if(!Player.occupiedPosition(player,positions))
+        {
+          (positions,ship)
+        }
+        else
+        {
+          println("Ships overlapping !!!!Choose another position for this ship")
+          generateShipWithPosition(shipSize,player)
+        }
+      }
+    else
+      {
+        println("Ship position out of limits !!!! please enter another position")
+        generateShipWithPosition(shipSize,player)
+      }
+
+  }
+
+  /**
+    * generate all player's ships with their respective positions
+    * @param shipsClass : the list of ships that can be added to a game
+    * @return : player with all of his ships and his grid updated
+    */
+  def generatePlayerWithItsShip(shipsClass : List[(String,Int)]) : Player =
+  {
+
+    @tailrec
+    def generatePlayerWithItsShipTailRec(player : Player, index : Int) : Player =
+    {
+      if(index == shipsClass.size)
+        player
+      else
+        {
+          println("Positioning of : "+shipsClass(index)._1 +" ("+shipsClass(index)._2+" squares)")
+          val shipSize = shipsClass(index)._2
+          val shipWithPositions = generateShipWithPosition(shipSize,player)
+          val playerWithShipAdded = Player.addShip(player,shipWithPositions)
+          Render.playerGridRenderer(playerWithShipAdded.ownGrid)
+          generatePlayerWithItsShipTailRec(playerWithShipAdded,index+1)
+        }
+    }
+    val player = Player(List.empty[(List[Position],Ship)],Grid(),Grid())
+    Render.playerGridRenderer(player.ownGrid)
+    generatePlayerWithItsShipTailRec(player,0)
+  }
+
+  /**
+    * Check with the initial position and the orientation of the ship if this one is still in the limits of the grid
+    * @param p : the initial position
+    * @param orientation : the orientation the player wants to place its ship
+    * @param sizeShip : the size of the ship
+    * @return : true if the position of the ship is still in the limits of the grid, else false
+    */
+  def positionLimitsCheck(p : Position, orientation: String,sizeShip : Int) : Boolean =
+  {
+    orientation match
+    {
+      case "HR" => p.y + (sizeShip - 1) <10
+      case "HL" => p.y - (sizeShip - 1) > (-1)
+      case "VU" => p.x - (sizeShip - 1) > (-1)
+      case "VD" => p.x + (sizeShip - 1) <10
+    }
+  }
+
+  def makeAShot(player : Player):Position =
+  {
+    val line = seizeLineNumberShip()
+    val column = seizeColomnNumberShip()
+    val position = Position(line,column)
+    if(player.enemyGrid.grid(position.x)(position.y) == 1 || player.enemyGrid.grid(position.x)(position.y) == 2)
+    {
+      println("you already shot on this square choose another position!!!")
+      makeAShot(player)
+    }
+    else
+    {
+      position
+    }
+  }
+
+
+
+
 
 
 

@@ -93,4 +93,18 @@ class PlayerTest extends FlatSpec with Matchers {
     Player.checkShipState(shipTouched3,Position(1,4)) should be (false)
   }
 
+  "Player" should "Check if he still have operational ships" in
+  {
+    val ship1 = (List.apply(Position(1,2)),Ship(true,3))
+    val ship2 = (List.apply(Position(1,2)),Ship(false,3))
+    val ship3 = (List.apply(Position(1,2)),Ship(true,3))
+    val ship4 = (List.apply(Position(1,2)),Ship(false,3))
+    val fleet1 = List.apply(ship1,ship2,ship3)
+    var destroyedFleet = List.apply(ship2,ship4)
+    val playerWithAFleet= Player.addShip(player,fleet)
+    val playerWithFleetDestroyed = Player(destroyedFleet,Grid(),Grid())
+    Player.checkFleetState(playerWithAFleet.fleet) should be (true)
+    Player.checkFleetState(playerWithFleetDestroyed.fleet) should be (false)
+  }
+
 }
