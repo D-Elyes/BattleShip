@@ -251,6 +251,22 @@ object PlayerInGameHandler {
     }
   }
 
+  @tailrec
+  def endGameInput(): Boolean =
+  {
+    println("Do you want to play again? (y for yes, n for no)")
+    val choice = StdIn.readLine().toUpperCase
+    choice match
+    {
+      case "Y" => true
+      case "N" => false
+      case _ =>{
+        println("Wrond input !!! please type Y for yes or N for no")
+        endGameInput()
+      }
+    }
+  }
+
 
 
 

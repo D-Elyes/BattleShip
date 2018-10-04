@@ -28,12 +28,12 @@ object BattleShip extends App {
       gameModeChoice match
       {
         case "1" =>{
-          playerVsPlayer()
+          playerVsPlayer(0)
         }
         case "2" =>
         case "3" =>
         case "4" =>{
-          println("Au revoir!!!!!!!!!")
+          println("Au Revoir!!!!!!!!!")
         }
         case _ =>{
           println("Choice error !!!! choose one of the option by entering its number (1,2,3,4 or 5)")
@@ -44,13 +44,17 @@ object BattleShip extends App {
     }
   }
 
-  def playerVsPlayer()=
+  def playerVsPlayer(turn : Int)
   {
-    println("First Player setting")
+    println("First Player ship settings")
     val player1 = PlayerInGameHandler.generatePlayerWithItsShip(shipClass)
     println("Second Player setting")
     val player2 = PlayerInGameHandler.generatePlayerWithItsShip(shipClass)
     val gameState = GameState(player1,player2)
+    if(turn ==0)
+      println("Player 1 Starts the attack pahse")
+    else
+      println("Player 2 start the attack phase")
     battle(gameState)
     @tailrec
     def battle(gameState : GameState)
@@ -70,6 +74,9 @@ object BattleShip extends App {
           val newGameState = GameState(newNextPlayer,newCurrentPlayer)
           println("Moving to defense phase ")
           println("****************")
+          println("Entering next Player turn")
+          StdIn.readLine("Press key to continue")
+          println()
           battle(newGameState)
         }
       else if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == 0)
@@ -86,11 +93,26 @@ object BattleShip extends App {
               val newGameState = GameState(newNextPlayer,newCurrentPlayer)
               println("Moving to defense phase ")
               println("****************")
+              println("Entering next Player turn")
+              StdIn.readLine("Press key to continue")
+              println()
               battle(newGameState)
             }
             else
             {
               println("Congratulation !!! you just destroyed the enemy's last ship!!!!")
+              val repeat = PlayerInGameHandler.endGameInput()
+              if(repeat)
+                {
+                  if(turn == 0)
+                    playerVsPlayer(1)
+                  else
+                    playerVsPlayer(0)
+                }
+              else
+                {
+                  Game()
+                }
             }
           }
           else
@@ -98,7 +120,9 @@ object BattleShip extends App {
               val newGameState = GameState(newNextPlayer,newCurrentPlayer)
               println("Moving to defense phase ")
               println("****************")
-
+              println("Entering next Player turn")
+              StdIn.readLine("Press key to continue")
+              println()
               battle(newGameState)
             }
         }
