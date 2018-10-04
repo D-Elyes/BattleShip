@@ -40,6 +40,8 @@ object Player
     addShipTailRec(player,fleetElement,0)
   }
 
+
+
   /**
     *check if the square in the position passed in parameters are already occupied or not
     * @param player : the player whose grid nthat we are testing, belongs to
@@ -147,4 +149,6 @@ object Player
       else
         false
     }
+
+
 }

@@ -36,6 +36,11 @@ object Render {
     println()
   }
 
+  def gameClose() =
+  {
+    
+  }
+
 
 
 }

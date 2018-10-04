@@ -235,6 +235,11 @@ object PlayerInGameHandler {
     }
   }
 
+  /**
+    *
+    * @param player
+    * @return
+    */
   def makeAShot(player : Player):Position =
   {
     val line = seizeLineNumberShip()
@@ -251,6 +256,10 @@ object PlayerInGameHandler {
     }
   }
 
+  /**
+    *
+    * @return
+    */
   @tailrec
   def endGameInput(): Boolean =
   {
