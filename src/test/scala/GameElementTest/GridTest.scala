@@ -24,6 +24,7 @@ class GridTest extends  FlatSpec with Matchers{
   {
     val newGrid = Grid.updateGrid(grid,Position(1,1),2)
     newGrid.grid(1)(1) should be (2)
+    newGrid.grid.size should be (10)
   }
 
 }
