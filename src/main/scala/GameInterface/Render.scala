@@ -39,6 +39,13 @@ object Render {
     println("Thank you for playing Battle Ship !!!!")
   }
 
+  def aiLevelChoice(): Unit =
+  {
+    println("1- Easy")
+    println("2- Normal")
+    println("3- Hard")
+  }
+
 
 
 }

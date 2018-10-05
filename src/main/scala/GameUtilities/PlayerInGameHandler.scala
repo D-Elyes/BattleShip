@@ -9,31 +9,9 @@ import scala.io.StdIn
 /**
   * This class defines the function that will handle the interaction with the player as a user
   */
-object PlayerInGameHandler extends InGameHandler {
+object PlayerInGameHandler {
 
-  /**
-    * Generate the list of positions of a ship starting with a position the the user typed and according to an orientation
-    * @param orientation : the orientation of the ship :
-    *                    HR : Horizontal Right
-    *                    HL : Horizontal Left
-    *                    VU : Vertical Up
-    *                    VD : Vertical Down
-    * @param shipSize : The size of the ship to be place
-    * @param p : the position that the player choose
-    * @return : a list of Position which the first element is the one that the player seized
-    */
-  def generateShipPosition(orientation: String, shipSize: Int, p: Position): List[Position] = {
-    if (shipSize == 0)
-      Nil
-    else {
-      orientation match {
-        case "HR" => p :: generateShipPosition(orientation, shipSize - 1, Position(p.x, p.y + 1))
-        case "HL" => p :: generateShipPosition(orientation, shipSize - 1, Position(p.x, p.y - 1))
-        case "VU" => p :: generateShipPosition(orientation, shipSize - 1, Position(p.x - 1, p.y))
-        case "VD" => p :: generateShipPosition(orientation, shipSize - 1, Position(p.x + 1, p.y))
-      }
-    }
-  }
+
 
   /**
     * Convert a string to an int
@@ -85,7 +63,7 @@ object PlayerInGameHandler extends InGameHandler {
     * @return the column number
     */
   @tailrec
-  def seizeColomnNumberShip():Int =
+  def seizeColumnNumberShip():Int =
   {
     println("Choose column : ")
     println("(A,B,C,D,E,F,G,H,I,J)")
@@ -104,7 +82,7 @@ object PlayerInGameHandler extends InGameHandler {
       case "J" => 9
       case _ => {
         println("Input Error!!!! you have to choose between A,B,C,D,E,F,G,H,I or J")
-        seizeColomnNumberShip()
+        seizeColumnNumberShip()
       }
     }
 
@@ -166,11 +144,11 @@ object PlayerInGameHandler extends InGameHandler {
   {
     val ship = Ship(true,shipSize)
     val line = seizeLineNumberShip()
-    val column = seizeColomnNumberShip()
+    val column = seizeColumnNumberShip()
     val orientation = seizeOrientationShip()
-    if(GameUtil.positionLimitsCheck(Position(line,column),orientation,shipSize))
+    if(GameHandlerUtil.positionLimitsCheck(Position(line,column),orientation,shipSize))
       {
-        val positions = generateShipPosition(orientation,shipSize,Position(line,column))
+        val positions = GameHandlerUtil.generateShipPosition(orientation,shipSize,Position(line,column))
         if(!Player.occupiedPosition(player,positions))
         {
           (positions,ship)
@@ -224,15 +202,15 @@ object PlayerInGameHandler extends InGameHandler {
     * @param player
     * @return
     */
-  def makeAShot(player : Player):Position =
+  def playerMakeAShot(player : Player):Position =
   {
     val line = seizeLineNumberShip()
-    val column = seizeColomnNumberShip()
+    val column = seizeColumnNumberShip()
     val position = Position(line,column)
     if(player.enemyGrid.grid(position.x)(position.y) == 1 || player.enemyGrid.grid(position.x)(position.y) == 2)
     {
       println("you already shot on this square choose another position!!!")
-      makeAShot(player)
+      playerMakeAShot(player)
     }
     else
     {
