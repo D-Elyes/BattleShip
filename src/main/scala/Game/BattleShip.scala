@@ -1,16 +1,18 @@
 package Game
 
-import GameElement.{Player}
+import GameElement.Player
 import GameInterface.Render
-import GameUtil.{RoundUtil}
+import GameUtilities.{GameHandlerUtil, RoundUtil}
 
 import scala.annotation.tailrec
-import scala.io.StdIn
+import scala.util.Random
 
 object BattleShip extends App {
 
-  case class GameState(currentPlayer : Player, nextPlayer : Player)
-  val shipClass = List.apply(("Destroyer",2))
+  case class GameState(currentPlayer : Player, nextPlayer : Player, turn : String)
+  val shipClass = List.apply(("Carrier",5),("Battleship",4),("Cruiser",3),("Submarine",3),("Destroyer",2))
+  val r = Random
+
   //("Carrier",5),("Battleship",4),("Cruiser",3),("Submarine",3)
   Game()
 
@@ -18,25 +20,29 @@ object BattleShip extends App {
 
   def Game()
   {
-    println("Welcome to Battle Ship")
+    println("Welcome to Battle Ship\n\n")
     mainLoop()
     @tailrec
     def mainLoop(): Unit =
     {
       Render.menuRederer()
-      val gameModeChoice = StdIn.readLine()
+      val gameModeChoice = GameHandlerUtil.gameModeChoice()
       gameModeChoice match
       {
         case "1" =>{
-          RoundUtil.playerVsPlayer(0)
+          RoundUtil.playerVsPlayer(0,shipClass)
         }
-        case "2" =>
+        case "2" =>{
+          Render.aiLevelChoice()
+          val choiceLevel = GameHandlerUtil.aiLevelInput()
+          RoundUtil.playerVsAi(0,choiceLevel,r,shipClass)
+        }
         case "3" =>
         case "4" =>{
-          println("Au Revoir!!!!!!!!!")
+          Render.gameClose()
         }
         case _ =>{
-          println("Choice error !!!! choose one of the option by entering its number (1,2,3,4 or 5)")
+          println("Choice error !!!! choose one of the option by entering its number (1,2,3 or 4)")
           mainLoop()
         }
       }

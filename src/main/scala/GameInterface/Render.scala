@@ -6,13 +6,11 @@ object Render {
 
   def menuRederer() =
   {
-    println("Welcome to Battle Ship\n\n")
-    println("You can choose game mode : ")
     println("1- Player vs Player")
     println("2- Player Vs AI")
     println("3- Ai vs AI")
     println("4- Quit game")
-    println("Please type the number of the option(1,2,3 or 4 )")
+
 
   }
 
@@ -38,7 +36,14 @@ object Render {
 
   def gameClose() =
   {
-    
+    println("Thank you for playing Battle Ship !!!!")
+  }
+
+  def aiLevelChoice(): Unit =
+  {
+    println("1- Easy")
+    println("2- Normal")
+    println("3- Hard")
   }
 
 

@@ -1,14 +1,14 @@
-package GameUtilTest
+package GameUtilitiesTest
 
-import GameElement.Position
+import GameElement.{Grid, Position}
 import org.scalatest.{FlatSpec, Matchers}
-import GameUtil.PlayerInGameHandler
+import GameUtilities.GameHandlerUtil
 
-class PlayerInGameHandlerTest extends FlatSpec with Matchers {
+class GameHandlerUtilTest extends FlatSpec with Matchers {
 
   "Handling a player" should "mean generation the ship positions according a position he entered and an orientation" in
   {
-    val positions = PlayerInGameHandler.generateShipPosition("HR",5,Position(0,0))
+    val positions = GameHandlerUtil.generateShipPosition("HR",5,Position(0,0))
     positions.size should be (5)
     positions(0) should be (Position(0,0))
     positions(1) should be (Position(0,1))
@@ -16,23 +16,34 @@ class PlayerInGameHandlerTest extends FlatSpec with Matchers {
     positions(3) should be (Position(0,3))
     positions(4) should be (Position(0,4))
 
-    val positionsHL = PlayerInGameHandler.generateShipPosition("HL",4,Position(0,9))
+    val positionsHL = GameHandlerUtil.generateShipPosition("HL",4,Position(0,9))
     positionsHL.size should be (4)
     positionsHL(0) should be (Position(0,9))
     positionsHL(1) should be (Position(0,8))
     positionsHL(2) should be (Position(0,7))
     positionsHL(3) should be (Position(0,6))
 
-    val positionsVU = PlayerInGameHandler.generateShipPosition("VU",3,Position(5,9))
+    val positionsVU = GameHandlerUtil.generateShipPosition("VU",3,Position(5,9))
     positionsVU.size should be (3)
     positionsVU(0) should be (Position(5,9))
     positionsVU(1) should be (Position(4,9))
     positionsVU(2) should be (Position(3,9))
 
-    val positionsVD = PlayerInGameHandler.generateShipPosition("VD",2,Position(5,9))
+    val positionsVD = GameHandlerUtil.generateShipPosition("VD",2,Position(5,9))
     positionsVD.size should be (2)
     positionsVD(0) should be (Position(5,9))
     positionsVD(1) should be (Position(6,9))
+  }
+
+  "Medium Ai" should "the next positions that it will target" in
+  {
+    val grid = Grid()
+    val p = Position(3,3)
+    val orientation = "V"
+    val nextPositions = GameHandlerUtil.middleAiGetNextPosition(p,orientation,grid)
+
+    nextPositions(0) should be (Position(4,3))
+    nextPositions(1) should be (Position(2,3))
   }
 
 }
