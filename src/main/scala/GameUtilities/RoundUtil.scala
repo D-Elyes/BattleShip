@@ -118,6 +118,8 @@ object RoundUtil {
           playerVsAiEasy(r,gameState)
         else if(level == 2)
           playerVsAiMedium(r,gameState,(List.empty[Position],""))
+        else
+          playerVsAiHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false)
       }
     else
       {
@@ -127,6 +129,8 @@ object RoundUtil {
           playerVsAiEasy(r,gameState)
         else if(level == 2)
           playerVsAiMedium(r,gameState,(List.empty[Position],""))
+        else
+          playerVsAiHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false)
       }
 
     @tailrec
@@ -286,7 +290,7 @@ object RoundUtil {
         else
           {
             val newNextTarget = {
-              if(nextTarget._1.size == 0)
+              if(nextTarget._1.isEmpty)
                 nextTarget
               else
                 (nextTarget._1.tail,nextTarget._2)
@@ -359,7 +363,7 @@ object RoundUtil {
           else if(gameState.turn == "ai")
             {
               val orientation = {
-                if(nextTarget._1.size>0)
+                if(nextTarget._1.nonEmpty)
                   nextTarget._2
                 else
                 {
@@ -370,7 +374,7 @@ object RoundUtil {
                     "V"
                 }
               }
-              val positionsToTarget = GameHandlerUtil.middleAiGetNextPosition(positionShot,orientation,gameState.currentPlayer.enemyGrid)
+              val positionsToTarget = GameHandlerUtil.middleAiGetNextPosition(positionShot,orientation,newCurrentPlayer.enemyGrid)
               val nextPositions = {
                 if(nextTarget._1.isEmpty)
                   positionsToTarget
@@ -378,7 +382,6 @@ object RoundUtil {
                   nextTarget._1.tail ++ positionsToTarget
               }
               val newNextTarget = (nextPositions,orientation)
-              println(positionShot +"********** "+newNextTarget._1+"*******"+orientation)
               playerVsAiMedium(r,newGameState,newNextTarget)
             }
         }
@@ -386,10 +389,11 @@ object RoundUtil {
     }
 
     @tailrec
-    def playerVsAiHard(r:Random,gameState : GameState,nextTarget : List[(List[Position],String)])
+    def playerVsAiHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),
+                       checkHorizontal : Boolean)
     {
       val nextTurn = GameHandlerUtil.nextTurn(gameState.turn)
-      println("Attack phase !!"+gameState.turn+" procedding to attack")
+      println("Attack phase !!"+ gameState.turn+" procedding to attack")
       if(gameState.turn == "player")
       {
         println(gameState.turn+" grid : ")
@@ -400,13 +404,25 @@ object RoundUtil {
       }
       val positionShot = {
         if (gameState.turn == "player")
+        {
           PlayerInGameHandler.playerMakeAShot(gameState.currentPlayer)
+        }
         else
-          AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
+        {
+          if(nextTarget._1._1.isEmpty && nextTarget._2._1.isEmpty)
+            AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
+          else
+          {
+            GameHandlerUtil.hardAiGetNextShotPosition(nextTarget)
+          }
+        }
+
       }
+      println("*************"+positionShot)
       if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
       {
         println("Miss Shot !!!!!")
+
         val newCurrentPlayer = Player.missShot(gameState.currentPlayer,positionShot)
 
         val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
@@ -423,8 +439,21 @@ object RoundUtil {
           StdIn.readLine("Press key to continue")
           println()
         }
-
-        playerVsAiHard(r,newGameState)
+        if(gameState.turn == "player")
+          playerVsAiHard(r,newGameState,nextTarget,checkHorizontal)
+        else
+        {
+          val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
+          val checkHorizontalUpdated =
+          {
+            if(newNextTarget._2._1.isEmpty)
+              false
+            else
+              checkHorizontal
+          }
+          println("Newt Targer : **** "+newNextTarget)
+          playerVsAiHard(r,newGameState,newNextTarget,checkHorizontalUpdated)
+        }
       }
       else if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == 0)
       {
@@ -438,6 +467,7 @@ object RoundUtil {
         if(!Player.checkShipState(newNextPlayer,positionShot))
         {
           println("Ship Destroyed!!!!!")
+
           if(Player.checkFleetState(newNextPlayer.fleet))
           {
             val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
@@ -449,8 +479,15 @@ object RoundUtil {
               StdIn.readLine("Press key to continue")
               println()
             }
-
-            playerVsAiHard(r,newGameState)
+            if(gameState.turn == "ai")
+            {
+              val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
+              val checkHorizontalUpdate = newNextTarget._2._1.nonEmpty
+              println("Newt Targer : **** "+newNextTarget)
+              playerVsAiHard(r,newGameState,newNextTarget,checkHorizontalUpdate)
+            }
+            else
+              playerVsAiHard(r,newGameState,nextTarget,checkHorizontal)
           }
           else
           {
@@ -480,9 +517,29 @@ object RoundUtil {
             println("Press any key to continue")
             StdIn.readLine()
             println()
+            playerVsAiHard(r,newGameState,nextTarget,checkHorizontal)
           }
+          else if(gameState.turn == "ai")
+          {
+            if(nextTarget._1._1.isEmpty && nextTarget._2._1.nonEmpty && checkHorizontal)
+              {
+                val horizontalPositions = GameHandlerUtil.middleAiGetNextPosition(positionShot,"H",newCurrentPlayer.enemyGrid)
+                val checkHorizontalUpdate = false
+                val verticalTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
+                val newNextTarget = ((horizontalPositions,"H"),verticalTarget._2)
+                println("Newt Targer : **** "+newNextTarget)
+                playerVsAiHard(r,newGameState,newNextTarget,checkHorizontalUpdate)
 
-          playerVsAiHard(r,newGameState)
+              }
+            else
+              {
+
+                val newNextTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
+                println("Newt Targer : **** "+newNextTarget)
+                playerVsAiHard(r,newGameState,newNextTarget,checkHorizontal)
+              }
+
+          }
         }
       }
     }

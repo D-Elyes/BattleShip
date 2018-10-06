@@ -104,6 +104,13 @@ object GameHandlerUtil {
       }
     }
 
+  /**
+    *
+    * @param currentTarget
+    * @param orientation
+    * @param grid
+    * @return
+    */
   def middleAiGetNextPosition(currentTarget: Position,orientation : String,grid : Grid):List[Position] =
   {
     if(orientation == "V")
@@ -149,4 +156,69 @@ object GameHandlerUtil {
         }
       }
   }
+
+  /**
+    *
+    * @param nextTargets
+    * @return
+    */
+  def hardAiGetNextShotPosition(nextTargets : ((List[Position],String),(List[Position],String))): Position =
+  {
+    if (nextTargets._1._1.nonEmpty)
+      {
+        nextTargets._1._1.head
+      }
+    else
+      {
+
+        nextTargets._2._1.head
+      }
+
+  }
+
+  /**
+    *
+    * @param nextTargets
+    * @param position
+    * @return
+    */
+  def deleteUsedTargetByHardAi(nextTargets : ((List[Position],String),(List[Position],String)),position : Position) : ((List[Position],String),(List[Position],String)) =
+  {
+    if(nextTargets._1._1.contains(position))
+      {
+        ((nextTargets._1._1.tail,nextTargets._1._2),nextTargets._2)
+      }
+    else if(nextTargets._2._1.contains(position))
+      {
+        (nextTargets._1,(nextTargets._2._1.tail,nextTargets._2._2))
+      }
+    else
+      {
+        nextTargets.copy()
+      }
+  }
+
+  def getNextPositionToTargetForHardAi(targets : ((List[Position],String),(List[Position],String)),position : Position, grid : Grid) : ((List[Position],String),(List[Position],String))=
+  {
+    if(targets._1._1.contains(position))
+      {
+        val positions = middleAiGetNextPosition(position,targets._1._2,grid)
+        val nextPositions = (positions ++targets._1._1.tail ,targets._1._2)
+        (nextPositions,targets._2)
+      }
+    else if(targets._2._1.contains(position))
+      {
+        val positions = middleAiGetNextPosition(position,targets._2._2,grid)
+        val nextPositions = (positions ++ targets._2._1.tail  ,targets._2._2)
+        (targets._1,nextPositions)
+      }
+    else
+      {
+        val horizontalTarget = middleAiGetNextPosition(position,"H",grid)
+        val verticalTarget = middleAiGetNextPosition(position,"V",grid)
+        ((horizontalTarget,"H"),(verticalTarget,"V"))
+      }
+  }
+
+
 }
