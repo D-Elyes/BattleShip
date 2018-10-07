@@ -34,7 +34,7 @@ object AiInGameHandler {
 
   }
 
-  def generatePlayerWithItsShip(shipsClass : List[(String,Int)],r:Random) : Player =
+  def generatePlayerWithItsShip(shipsClass : List[(String,Int)],r:Random, aiType:String) : Player =
   {
     @tailrec
     def generatePlayerWithItsShipTailRec(player : Player, index : Int) : Player =
@@ -43,14 +43,13 @@ object AiInGameHandler {
         player
       else
       {
-        println("Positioning of : "+shipsClass(index)._1 +" ("+shipsClass(index)._2+" squares)")
         val shipSize = shipsClass(index)._2
         val shipWithPositions = generateShipWithPosition(shipSize,player,r)
         val playerWithShipAdded = Player.addShip(player,shipWithPositions)
         generatePlayerWithItsShipTailRec(playerWithShipAdded,index+1)
       }
     }
-    val player = Player(List.empty[(List[Position],Ship)],Grid(),Grid())
+    val player = Player(List.empty[(List[Position],Ship)],Grid(),Grid(),aiType)
     generatePlayerWithItsShipTailRec(player,0)
   }
 

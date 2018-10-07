@@ -93,16 +93,11 @@ object GameHandlerUtil {
     }
   }
 
-  def nextTurn(currentTurn: String) : String =
-    {
-      currentTurn match
-      {
-        case "player1"  => "player2"
-        case "player2"  => "player1"
-        case "player"   => "ai"
-        case "ai"       => "player"
-      }
-    }
+ /* def mediumAiGetNextPosition(targets : (List[Position],String)) : Position =
+  {
+    if(targets._1.isEmpty)
+
+  }*/
 
   /**
     *

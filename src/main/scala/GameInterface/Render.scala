@@ -46,6 +46,4 @@ object Render {
     println("3- Hard")
   }
 
-
-
 }

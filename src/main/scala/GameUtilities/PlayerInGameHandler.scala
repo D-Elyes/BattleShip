@@ -172,7 +172,7 @@ object PlayerInGameHandler {
     * @param shipsClass : the list of ships that can be added to a game
     * @return : player with all of his ships and his grid updated
     */
-  def generatePlayerWithItsShip(shipsClass : List[(String,Int)]) : Player =
+  def generatePlayerWithItsShip(shipsClass : List[(String,Int)],playerType : String) : Player =
   {
 
     @tailrec
@@ -190,7 +190,7 @@ object PlayerInGameHandler {
           generatePlayerWithItsShipTailRec(playerWithShipAdded,index+1)
         }
     }
-    val player = Player(List.empty[(List[Position],Ship)],Grid(),Grid())
+    val player = Player(List.empty[(List[Position],Ship)],Grid(),Grid(),playerType)
     Render.playerGridRenderer(player.ownGrid)
     generatePlayerWithItsShipTailRec(player,0)
   }
