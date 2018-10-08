@@ -1,5 +1,7 @@
 package GameUtilities
 
+import java.io.{BufferedWriter, FileWriter}
+
 import Game.BattleShip.{Game, GameState}
 import GameElement.{Player, Position}
 import GameInterface.Render
@@ -7,11 +9,13 @@ import GameUtilities.RoundUtil.playerVsAi
 
 import scala.annotation.tailrec
 import scala.io.StdIn
+import scala.reflect.io.File
 import scala.util.Random
 
 object AiLevelMatch {
 
-  def AiVsAi(turn : Int, roundType : String,r:Random,shipClass : List[(String,Int)],roundNumber :Int,score1 :Int,score2:Int): Unit = {
+  def AiVsAi(turn : Int, roundType : String,r:Random,shipClass : List[(String,Int)],
+             roundNumber :Int,score1 :Int,score2:Int,scores : List[((String,Int),(String,Int))]): Unit = {
 
     if(roundType == "easy vs medium")
       {
@@ -39,9 +43,8 @@ object AiLevelMatch {
           easyVsHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false)
         }
       }
-    else
+    else if(roundType == "medium vs hard")
     {
-
       val mediumAi = AiInGameHandler.generatePlayerWithItsShip(shipClass, r, "medium ai")
       val hardAi = AiInGameHandler.generatePlayerWithItsShip(shipClass, r, "hard ai")
       if (turn == 0) {
@@ -52,8 +55,18 @@ object AiLevelMatch {
       else {
         val gameState = GameState(hardAi,mediumAi)
         mediumVsHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false,(List.empty[Position],""))
+
+
       }
     }
+    else
+      {
+        println(scores)
+        val bufferWrite = new BufferedWriter(new FileWriter("ai_proof.csv"))
+        bufferWrite.write("I Name; score; AI Name2; score2\n")
+        scores.foreach(x => bufferWrite.write(x._1._1 + " "+x._1._2+"; "+x._2._1 + " "+x._2._2+"\n"))
+        bufferWrite.close()
+      }
 
     @tailrec
     def easyVsMedium(r:Random,gameState : GameState,nextTarget :(List[Position],String)): Unit =
@@ -123,9 +136,9 @@ object AiLevelMatch {
               {
 
                 if(gameState.currentPlayer.playerType =="easy ai")
-                  AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2)
+                  AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
                 else
-                  AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1)
+                  AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
               }
 
             else
@@ -133,8 +146,15 @@ object AiLevelMatch {
               println("Entering Easy vs Hard")
               println("easy ai : "+score1+" medium ai : "+score2)
               StdIn.readLine()
-              AiVsAi(0,"easy vs hard",r,shipClass,0,0,0)
-            }
+              if(newCurrentPlayer.playerType == "easy ai")
+              {
+                val newScores = scores :+ ((newCurrentPlayer.playerType,score1),(newNextPlayer.playerType,score2))
+                AiVsAi(0,"easy vs hard",r,shipClass,0,0,0,newScores)
+              }
+              else {
+                val newScores = scores :+ ((newCurrentPlayer.playerType, score2), (newNextPlayer.playerType, score1))
+                AiVsAi(0, "easy vs hard", r, shipClass, 0, 0, 0, newScores)
+              }            }
           }
         }
         else
@@ -243,9 +263,9 @@ object AiLevelMatch {
             {
 
               if(gameState.currentPlayer.playerType =="easy ai")
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2)
+                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
               else
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1)
+                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
             }
 
             else
@@ -254,7 +274,16 @@ object AiLevelMatch {
               println("Entering medium vs Hard")
               println("easy ai : "+score1+" hard ai : "+score2)
               StdIn.readLine()
-              AiVsAi(0,"medium vs hard",r,shipClass,0,0,0)
+              if(newCurrentPlayer.playerType == "easy ai")
+              {
+                val newScores = scores :+ ((newCurrentPlayer.playerType,score1),(newNextPlayer.playerType,score2))
+                AiVsAi(0,"medium vs hard",r,shipClass,0,0,0,newScores)
+              }
+              else
+              {
+                val newScores = scores :+ ((newCurrentPlayer.playerType,score2),(newNextPlayer.playerType,score1))
+                AiVsAi(0,"medium vs hard",r,shipClass,0,0,0,newScores)
+              }
             }
           }
         }
@@ -375,9 +404,9 @@ object AiLevelMatch {
             {
 
               if(gameState.currentPlayer.playerType == "medium ai")
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2)
+                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
               else
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1)
+                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
             }
 
             else
@@ -385,6 +414,16 @@ object AiLevelMatch {
 
               println("medium ai : "+score1+" hard ai : "+score2)
               StdIn.readLine()
+              if(newCurrentPlayer.playerType == "medium ai")
+              {
+                val newScores = scores :+ ((newCurrentPlayer.playerType,score1),(newNextPlayer.playerType,score2))
+                AiVsAi(0,"Save file",r,shipClass,0,0,0,newScores)
+              }
+              else
+              {
+                val newScores = scores :+ ((newCurrentPlayer.playerType,score2),(newNextPlayer.playerType,score1))
+                AiVsAi(0,"Save FIle",r,shipClass,0,0,0,newScores)
+              }
             }
           }
         }

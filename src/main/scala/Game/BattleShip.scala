@@ -38,7 +38,7 @@ object BattleShip extends App {
           RoundUtil.playerVsAi(0,choiceLevel,r,shipClass)
         }
         case "3" =>{
-          AiLevelMatch.AiVsAi(0,"easy vs medium",r,shipClass,0,0,0)
+          AiLevelMatch.AiVsAi(0,"easy vs medium",r,shipClass,0,0,0,List.empty[((String,Int),(String,Int))])
         }
         case "4" =>{
           Render.gameClose()
