@@ -9,8 +9,9 @@ import scala.annotation.tailrec
   * @param fleet : the fleet of the player coposed of his ships and its position on the grid
   * @param ownGrid : the grid of the player where he will put his ships and the result of the enemy shots
   * @param enemyGrid : the enemy grid where player will put the results of his shots
+  * @param playerType : the type of the player : a player or ai, an ai can be an easy, medium or hard ai
   */
-case class Player(fleet : List[(List[Position],Ship)], ownGrid : Grid, enemyGrid : Grid)
+case class Player(fleet : List[(List[Position],Ship)], ownGrid : Grid, enemyGrid : Grid,playerType : String)
 
 object Player
 {

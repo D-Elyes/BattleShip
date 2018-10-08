@@ -10,44 +10,44 @@ import scala.util.Random
 
 object RoundUtil {
 
+
   def playerVsPlayer(turn : Int, shipClass : List[(String,Int)])
   {
     println("First Player ship settings")
-    val player1 = PlayerInGameHandler.generatePlayerWithItsShip(shipClass)
+    val player1 = PlayerInGameHandler.generatePlayerWithItsShip(shipClass,"player 1")
     println("Second Player setting")
-    val player2 = PlayerInGameHandler.generatePlayerWithItsShip(shipClass)
+    val player2 = PlayerInGameHandler.generatePlayerWithItsShip(shipClass,"player 2")
 
     if(turn ==0) {
       println("Player 1 Starts the attack pahse")
-      val gameState = GameState(player1, player2,"player1")
+      val gameState = GameState(player1, player2)
       battle(gameState)
     }
     else
     {
       println("Player 2 start the attack phase")
-      val gameState = GameState(player2, player1,"player2")
+      val gameState = GameState(player2, player1)
       battle(gameState)
     }
     @tailrec
     def battle(gameState : GameState)
     {
-      println("Attack phase !!"+gameState.turn+" procedding to attack")
-      println(gameState.turn+" grid : ")
+      println("Attack phase !!"+gameState.currentPlayer.playerType+" procedding to attack")
+      println(gameState.currentPlayer.playerType+" grid : ")
       Render.playerGridRenderer(gameState.currentPlayer.ownGrid)
-      println(gameState.turn+" enemy grid : ")
+      println(gameState.currentPlayer.playerType+" enemy grid : ")
       Render.playerGridRenderer(gameState.currentPlayer.enemyGrid)
       val positionShot = PlayerInGameHandler.playerMakeAShot(gameState.currentPlayer)
-      val nextTurn = GameHandlerUtil.nextTurn(gameState.turn)
       if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
       {
         println("Miss Shot !!!!!")
         val newCurrentPlayer = Player.missShot(gameState.currentPlayer,positionShot)
         Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
         val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
+        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
         println("Moving to defense phase ")
         println("****************")
-        println("Entering "+nextTurn+" turn")
+        println("Entering "+gameState.nextPlayer.playerType +" turn")
         StdIn.readLine("Press key to continue")
         println()
         battle(newGameState)
@@ -63,10 +63,10 @@ object RoundUtil {
           println("Ship Destroyed!!!!!")
           if(Player.checkFleetState(newNextPlayer.fleet))
           {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
+            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
             println("Moving to defense phase ")
             println("****************")
-            println("Entering "+nextTurn+" turn")
+            println("Entering "+ gameState.nextPlayer.playerType +" turn")
             StdIn.readLine("Press key to continue")
             println()
             battle(newGameState)
@@ -90,10 +90,10 @@ object RoundUtil {
         }
         else
         {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
+          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
           println("Moving to defense phase ")
           println("****************")
-          println("Entering "+nextTurn+" turn")
+          println("Entering "+gameState.nextPlayer.playerType +" turn")
           println("Press any key to continue")
           StdIn.readLine()
           println()
@@ -106,14 +106,13 @@ object RoundUtil {
   def playerVsAi(turn : Int, level : Int,r:Random,shipClass : List[(String,Int)]): Unit =
   {
     println("First Player ship settings")
-    val player = PlayerInGameHandler.generatePlayerWithItsShip(shipClass)
+    val player = PlayerInGameHandler.generatePlayerWithItsShip(shipClass,"player")
     println("AI ship settings")
-    val ai = AiInGameHandler.generatePlayerWithItsShip(shipClass,r)
-    Render.playerGridRenderer(ai.ownGrid)
+    val ai = AiInGameHandler.generatePlayerWithItsShip(shipClass,r,"ai")
     if(turn == 0)
       {
         println("Player begin the attack")
-        val gameState = GameState(player,ai,"player")
+        val gameState = GameState(player,ai)
         if(level==1)
           playerVsAiEasy(r,gameState)
         else if(level == 2)
@@ -124,7 +123,7 @@ object RoundUtil {
     else
       {
         println("Ai begin the Attack")
-        val gameState = GameState(ai,player,"ai")
+        val gameState = GameState(ai,player)
         if(level==1)
           playerVsAiEasy(r,gameState)
         else if(level == 2)
@@ -136,18 +135,17 @@ object RoundUtil {
     @tailrec
     def playerVsAiEasy(r:Random,gameState : GameState): Unit =
     {
-      val nextTurn = GameHandlerUtil.nextTurn(gameState.turn)
-      println("Attack phase !!"+gameState.turn+" procedding to attack")
-      if(gameState.turn == "player")
+      println("Attack phase !!"+gameState.currentPlayer.playerType +" procedding to attack")
+      if(gameState.currentPlayer.playerType == "player")
         {
-          println(gameState.turn+" grid : ")
+          println("Player grid : ")
           Render.playerGridRenderer(gameState.currentPlayer.ownGrid)
-          println(gameState.turn+" enemy grid : ")
+          println("Player's enemy grid : ")
           Render.playerGridRenderer(gameState.currentPlayer.enemyGrid)
 
         }
       val positionShot = {
-        if (gameState.turn == "player")
+        if (gameState.currentPlayer.playerType == "player")
           PlayerInGameHandler.playerMakeAShot(gameState.currentPlayer)
         else
           AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
@@ -159,15 +157,15 @@ object RoundUtil {
 
         val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
 
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
+        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
 
-        if(gameState.turn == "player")
+        if(gameState.currentPlayer.playerType == "player")
           {
 
             Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
             println("Moving to defense phase ")
             println("****************")
-            println("Entering "+nextTurn+" turn")
+            println("Entering"+ gameState.nextPlayer.playerType +" turn")
             StdIn.readLine("Press key to continue")
             println()
           }
@@ -178,7 +176,7 @@ object RoundUtil {
       {
         println("Shot Succeeded !!!!!")
         val newCurrentPlayer = Player.successShot(gameState.currentPlayer,positionShot)
-        if(gameState.turn =="player")
+        if(gameState.currentPlayer.playerType=="player")
           {
             Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
           }
@@ -188,12 +186,12 @@ object RoundUtil {
           println("Ship Destroyed!!!!!")
           if(Player.checkFleetState(newNextPlayer.fleet))
           {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
-            if(gameState.turn == "player")
+            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
+            if(gameState.currentPlayer.playerType == "player")
               {
                 println("Moving to defense phase ")
                 println("****************")
-                println("Entering "+nextTurn+" turn")
+                println("Entering "+ gameState.nextPlayer.playerType +" turn")
                 StdIn.readLine("Press key to continue")
                 println()
               }
@@ -219,12 +217,12 @@ object RoundUtil {
         }
         else
         {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
-          if(gameState.turn == "player")
+          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
+          if(gameState.currentPlayer.playerType == "player")
             {
               println("Moving to defense phase ")
               println("****************")
-              println("Entering "+nextTurn+" turn")
+              println("Entering "+ gameState.nextPlayer.playerType +" turn")
               println("Press any key to continue")
               StdIn.readLine()
               println()
@@ -238,18 +236,17 @@ object RoundUtil {
     @tailrec
     def playerVsAiMedium(r:Random,gameState : GameState,nextTarget :(List[Position],String))
     {
-      val nextTurn = GameHandlerUtil.nextTurn(gameState.turn)
-      println("Attack phase !!"+ gameState.turn+" procedding to attack")
-      if(gameState.turn == "player")
+      println("Attack phase !!"+ gameState.currentPlayer.playerType +" procedding to attack")
+      if(gameState.currentPlayer.playerType == "player")
       {
-        println(gameState.turn+" grid : ")
+        println("Player grid : ")
         Render.playerGridRenderer(gameState.currentPlayer.ownGrid)
-        println(gameState.turn+" enemy grid : ")
+        println("Players's enemy grid : ")
         Render.playerGridRenderer(gameState.currentPlayer.enemyGrid)
 
       }
       val positionShot = {
-        if (gameState.turn == "player")
+        if (gameState.currentPlayer.playerType == "player")
           {
             PlayerInGameHandler.playerMakeAShot(gameState.currentPlayer)
           }
@@ -264,7 +261,6 @@ object RoundUtil {
         }
 
       }
-      println("*************"+positionShot)
       if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
       {
         println("Miss Shot !!!!!")
@@ -273,19 +269,19 @@ object RoundUtil {
 
         val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
 
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
+        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
 
-        if(gameState.turn == "player")
+        if(gameState.currentPlayer.playerType == "player")
         {
 
           Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
           println("Moving to defense phase ")
           println("****************")
-          println("Entering "+nextTurn+" turn")
+          println("Entering "+ gameState.nextPlayer.playerType +" turn")
           StdIn.readLine("Press key to continue")
           println()
         }
-        if(gameState.turn == "player")
+        if(gameState.currentPlayer.playerType == "player")
            playerVsAiMedium(r,newGameState,nextTarget)
         else
           {
@@ -302,7 +298,7 @@ object RoundUtil {
       {
         println("Shot Succeeded !!!!!")
         val newCurrentPlayer = Player.successShot(gameState.currentPlayer,positionShot)
-        if(gameState.turn =="player")
+        if(gameState.currentPlayer.playerType =="player")
         {
           Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
         }
@@ -313,16 +309,17 @@ object RoundUtil {
 
           if(Player.checkFleetState(newNextPlayer.fleet))
           {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
-            if(gameState.turn == "player")
+            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
+            if(gameState.currentPlayer.playerType == "player")
             {
               println("Moving to defense phase ")
               println("****************")
-              println("Entering "+nextTurn+" turn")
+              println("Entering "+ gameState.nextPlayer.playerType +" turn")
               StdIn.readLine("Press key to continue")
               println()
             }
-            if(gameState.turn == "ai")
+
+            if(gameState.currentPlayer.playerType == "ai")
               {
                 val newNextTarget = (List.empty[Position],"")
                 playerVsAiMedium(r,newGameState,newNextTarget)
@@ -349,18 +346,18 @@ object RoundUtil {
         }
         else
         {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
-          if(gameState.turn == "player")
+          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
+          if(gameState.currentPlayer.playerType == "player")
           {
             println("Moving to defense phase ")
             println("****************")
-            println("Entering "+nextTurn+" turn")
+            println("Entering "+ gameState.nextPlayer.playerType +" turn")
             println("Press any key to continue")
             StdIn.readLine()
             println()
             playerVsAiMedium(r,newGameState,nextTarget)
           }
-          else if(gameState.turn == "ai")
+          else if(gameState.currentPlayer.playerType == "ai")
             {
               val orientation = {
                 if(nextTarget._1.nonEmpty)
@@ -392,18 +389,17 @@ object RoundUtil {
     def playerVsAiHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),
                        checkHorizontal : Boolean)
     {
-      val nextTurn = GameHandlerUtil.nextTurn(gameState.turn)
-      println("Attack phase !!"+ gameState.turn+" procedding to attack")
-      if(gameState.turn == "player")
+      println("Attack phase !!"+ gameState.currentPlayer.playerType +" procedding to attack")
+      if(gameState.currentPlayer.playerType == "player")
       {
-        println(gameState.turn+" grid : ")
+        println("Player grid : ")
         Render.playerGridRenderer(gameState.currentPlayer.ownGrid)
-        println(gameState.turn+" enemy grid : ")
+        println("Player's enemy grid : ")
         Render.playerGridRenderer(gameState.currentPlayer.enemyGrid)
 
       }
       val positionShot = {
-        if (gameState.turn == "player")
+        if (gameState.currentPlayer.playerType == "player")
         {
           PlayerInGameHandler.playerMakeAShot(gameState.currentPlayer)
         }
@@ -427,19 +423,19 @@ object RoundUtil {
 
         val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
 
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
+        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
 
-        if(gameState.turn == "player")
+        if(gameState.currentPlayer.playerType == "player")
         {
 
           Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
           println("Moving to defense phase ")
           println("****************")
-          println("Entering "+nextTurn+" turn")
+          println("Entering "+ gameState.nextPlayer.playerType +" turn")
           StdIn.readLine("Press key to continue")
           println()
         }
-        if(gameState.turn == "player")
+        if(gameState.currentPlayer.playerType == "player")
           playerVsAiHard(r,newGameState,nextTarget,checkHorizontal)
         else
         {
@@ -451,7 +447,6 @@ object RoundUtil {
             else
               checkHorizontal
           }
-          println("Newt Targer : **** "+newNextTarget)
           playerVsAiHard(r,newGameState,newNextTarget,checkHorizontalUpdated)
         }
       }
@@ -459,7 +454,7 @@ object RoundUtil {
       {
         println("Shot Succeeded !!!!!")
         val newCurrentPlayer = Player.successShot(gameState.currentPlayer,positionShot)
-        if(gameState.turn =="player")
+        if(gameState.currentPlayer.playerType =="player")
         {
           Render.playerGridRenderer(newCurrentPlayer.enemyGrid)
         }
@@ -470,20 +465,19 @@ object RoundUtil {
 
           if(Player.checkFleetState(newNextPlayer.fleet))
           {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
-            if(gameState.turn == "player")
+            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
+            if( gameState.currentPlayer.playerType == "player")
             {
               println("Moving to defense phase ")
               println("****************")
-              println("Entering "+nextTurn+" turn")
+              println("Entering "+ gameState.nextPlayer.playerType +" turn")
               StdIn.readLine("Press key to continue")
               println()
             }
-            if(gameState.turn == "ai")
+            if(gameState.currentPlayer.playerType == "ai")
             {
               val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
               val checkHorizontalUpdate = newNextTarget._2._1.nonEmpty
-              println("Newt Targer : **** "+newNextTarget)
               playerVsAiHard(r,newGameState,newNextTarget,checkHorizontalUpdate)
             }
             else
@@ -508,18 +502,18 @@ object RoundUtil {
         }
         else
         {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer,nextTurn)
-          if(gameState.turn == "player")
+          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
+          if(gameState.currentPlayer.playerType == "player")
           {
             println("Moving to defense phase ")
             println("****************")
-            println("Entering "+nextTurn+" turn")
+            println("Entering "+ gameState.nextPlayer.playerType +" turn")
             println("Press any key to continue")
             StdIn.readLine()
             println()
             playerVsAiHard(r,newGameState,nextTarget,checkHorizontal)
           }
-          else if(gameState.turn == "ai")
+          else if(gameState.currentPlayer.playerType == "ai")
           {
             if(nextTarget._1._1.isEmpty && nextTarget._2._1.nonEmpty && checkHorizontal)
               {
@@ -527,7 +521,6 @@ object RoundUtil {
                 val checkHorizontalUpdate = false
                 val verticalTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
                 val newNextTarget = ((horizontalPositions,"H"),verticalTarget._2)
-                println("Newt Targer : **** "+newNextTarget)
                 playerVsAiHard(r,newGameState,newNextTarget,checkHorizontalUpdate)
 
               }
@@ -535,7 +528,6 @@ object RoundUtil {
               {
 
                 val newNextTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
-                println("Newt Targer : **** "+newNextTarget)
                 playerVsAiHard(r,newGameState,newNextTarget,checkHorizontal)
               }
 
