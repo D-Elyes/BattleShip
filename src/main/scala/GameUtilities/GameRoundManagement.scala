@@ -113,10 +113,10 @@ object GameRoundManagement {
         }
       }
       else {
-        println("Congratulation !!! you just destroyed the enemy's last ship!!!!")
+        println("Game is over!!!!")
         val repeat = GeneralGameManagement.endGameInput()
         if (repeat) {
-          playerVsPlayer(!turn, shipClass)
+          playerVsAi(!turn,level,r, shipClass)
         }
         else {
           Game()
@@ -147,10 +147,10 @@ object GameRoundManagement {
         }
       else
         {
-          println("Congratulation !!! you just destroyed the enemy's last ship!!!!")
+          println("Game is over!!!!")
           val repeat = GeneralGameManagement.endGameInput()
           if (repeat) {
-            playerVsPlayer(!turn, shipClass)
+            playerVsAi(!turn,level,r, shipClass)
           }
           else {
             Game()
@@ -183,10 +183,10 @@ object GameRoundManagement {
       }
       else
       {
-        println("Congratulation !!! you just destroyed the enemy's last ship!!!!")
+        println("Game is over!!!!")
         val repeat = GeneralGameManagement.endGameInput()
         if (repeat) {
-          playerVsPlayer(!turn, shipClass)
+          playerVsAi(!turn,level,r, shipClass)
         }
         else {
           Game()

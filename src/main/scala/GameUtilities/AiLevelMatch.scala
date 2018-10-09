@@ -77,7 +77,6 @@ object AiLevelMatch {
         bufferWrite.write("AI Name; score; AI Name2; score2\n")
         scores.foreach(x => bufferWrite.write(x._1._1 + "; "+x._1._2+"; "+x._2._1 + "; "+x._2._2+"\n"))
         bufferWrite.close()
-        //StdIn.readLine("Press any key to return to menu")
         Game()
       }
 

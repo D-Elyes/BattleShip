@@ -32,7 +32,7 @@ object BeginnerAiActions {
       {
         if (gameState.currentPlayer.playerType == "ai")
         {
-          println("Ship Destroyed!!!!!")
+          println("Ai destroyed the Ship!!!!!")
           StdIn.readLine("Press any key to continue")
         }
       }
