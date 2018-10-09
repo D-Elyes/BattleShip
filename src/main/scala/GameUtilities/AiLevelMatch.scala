@@ -1,27 +1,41 @@
 package GameUtilities
 
 import java.io.{BufferedWriter, FileWriter}
-
-import Game.BattleShip.{Game, GameState}
+import Game.BattleShip.Game
 import GameElement.{Player, Position}
-import GameInterface.Render
-import GameUtilities.RoundUtil.playerVsAi
-
 import scala.annotation.tailrec
-import scala.io.StdIn
-import scala.reflect.io.File
 import scala.util.Random
 
+/**
+  * This class will handle the rounds between the different AIs
+  */
 object AiLevelMatch {
 
-  def AiVsAi(turn : Int, roundType : String,r:Random,shipClass : List[(String,Int)],
+  /**
+    * The main function that will be called by the main class to handle the different rounds between the AIs
+    * @param turn : This param will tell who's gonna start the shot first. WThis param will change for every restart
+    *             of the same game
+    * @param roundType : the type of the match, who's Ai gonna face who. It takes three values :
+    *                  - easy vs medium
+    *                  - easy vs hard
+    *                  - medium vs hard
+    * @param r : the random variable that the Ais will use
+    * @param shipClass : The different ships that a player can use
+    * @param roundNumber : the number of the round, in a game between two Ais there is 100 rounds
+    * @param score1 : the score of the first player
+    * @param score2 : the score of the second player
+    * @param scores : The final scores of the three versus
+    */
+  def AiVsAi(turn : Boolean, roundType : String,r:Random,shipClass : List[(String,Int)],
              roundNumber :Int,score1 :Int,score2:Int,scores : List[((String,Int),(String,Int))]): Unit = {
 
-    if(roundType == "easy vs medium")
+    //Initialisation of the different Ais according the roundType
+    //And lunching the game
+    if(roundType == "beginner vs medium")
       {
-        val easyAi = AiInGameHandler.generatePlayerWithItsShip(shipClass,r, "easy ai")
-        val mediumAi = AiInGameHandler.generatePlayerWithItsShip(shipClass, r, "medium ai")
-        if (turn == 0) {
+        val easyAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass,r, "beginner ai")
+        val mediumAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass, r, "medium ai")
+        if (turn) {
           val gameState = GameState(easyAi, mediumAi)
           easyVsMedium(r,gameState,(List.empty[Position],""))
         }
@@ -30,11 +44,11 @@ object AiLevelMatch {
           easyVsMedium(r,gameState,(List.empty[Position],""))
         }
       }
-    else if(roundType == "easy vs hard")
+    else if(roundType == "beginner vs hard")
       {
-        val easyAi = AiInGameHandler.generatePlayerWithItsShip(shipClass,r, "easy ai")
-        val hardAi = AiInGameHandler.generatePlayerWithItsShip(shipClass, r, "hard ai")
-        if (turn == 0) {
+        val easyAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass,r, "beginner ai")
+        val hardAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass, r, "hard ai")
+        if (turn) {
           val gameState = GameState(easyAi, hardAi)
           easyVsHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false)
         }
@@ -45,9 +59,9 @@ object AiLevelMatch {
       }
     else if(roundType == "medium vs hard")
     {
-      val mediumAi = AiInGameHandler.generatePlayerWithItsShip(shipClass, r, "medium ai")
-      val hardAi = AiInGameHandler.generatePlayerWithItsShip(shipClass, r, "hard ai")
-      if (turn == 0) {
+      val mediumAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass, r, "medium ai")
+      val hardAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass, r, "hard ai")
+      if (turn) {
         val gameState = GameState(mediumAi, hardAi)
 
         mediumVsHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false,(List.empty[Position],""))
@@ -55,427 +69,152 @@ object AiLevelMatch {
       else {
         val gameState = GameState(hardAi,mediumAi)
         mediumVsHard(r,gameState,((List.empty[Position],""),(List.empty[Position],"")),false,(List.empty[Position],""))
-
-
       }
     }
     else
       {
-        println(scores)
         val bufferWrite = new BufferedWriter(new FileWriter("ai_proof.csv"))
-        bufferWrite.write("I Name; score; AI Name2; score2\n")
-        scores.foreach(x => bufferWrite.write(x._1._1 + " "+x._1._2+"; "+x._2._1 + " "+x._2._2+"\n"))
+        bufferWrite.write("AI Name; score; AI Name2; score2\n")
+        scores.foreach(x => bufferWrite.write(x._1._1 + "; "+x._1._2+"; "+x._2._1 + "; "+x._2._2+"\n"))
         bufferWrite.close()
+        //StdIn.readLine("Press any key to return to menu")
+        Game()
       }
 
+    /**
+      * The function that handle the rounds of an easy Ai vs a medium Ai
+      * @param r : the random variable that will be user by the Ais
+      * @param gameState : the game state that contains the current player and the next player
+      * @param nextTarget : the potential tarets of the medium Ai
+      */
     @tailrec
     def easyVsMedium(r:Random,gameState : GameState,nextTarget :(List[Position],String)): Unit =
     {
-      val positionShot = {
-        if (gameState.currentPlayer.playerType == "easy ai")
-          AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
-        else
-          {
-            if(nextTarget._1.isEmpty)
-              AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
-            else
-            {
-              nextTarget._1.head
-            }
-          }
-      }
-
-      if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
-      {
-        val newCurrentPlayer = Player.missShot(gameState.currentPlayer,positionShot)
-
-        val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
-
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-
-        if(gameState.currentPlayer.playerType == "medium ai")
-        {
-          val newNextTarget = {
-            if(nextTarget._1.isEmpty)
-              nextTarget
-            else
-              (nextTarget._1.tail,nextTarget._2)
-          }
-          easyVsMedium(r,newGameState,newNextTarget)
+      //check if the player still has ships
+      if (Player.checkFleetState(gameState.currentPlayer.fleet)) {
+        if (gameState.currentPlayer.playerType == "beginner ai") {
+          val updateGameState = BeginnerAiActions.beginnerAiTurn(gameState,r)
+          easyVsMedium(r, updateGameState,nextTarget)
         }
-        else
-          easyVsMedium(r,newGameState,nextTarget)
-
+        else {
+          val updateGameState = MediumAiActions.mediumAiTurn(gameState,r,nextTarget)
+          easyVsMedium(r, updateGameState._1,updateGameState._2)
+        }
       }
-      else if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == 0)
-      {
-        val newCurrentPlayer = Player.successShot(gameState.currentPlayer,positionShot)
-        val newNextPlayer = Player.receiveSuccessShot(gameState.nextPlayer,positionShot)
-        if(!Player.checkShipState(newNextPlayer,positionShot))
-        {
-          if(Player.checkFleetState(newNextPlayer.fleet))
-          {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-            if(gameState.currentPlayer.playerType == "medium ai")
-            {
-              val newNextTarget = (List.empty[Position],"")
-              easyVsMedium(r,newGameState,newNextTarget)
-            }
-            else
-              easyVsMedium(r,newGameState,nextTarget)
-          }
+      else {
+        if (roundNumber <100) {
+          //if it didn't do 100 rounds, restart the round with the same Ais
+          if(gameState.nextPlayer.playerType =="beginner ai")
+            AiVsAi(!turn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
           else
-          {
-            val newTurn = {
-              if(turn == 0)
-                1
-              else
-                0
-            }
-            if(roundNumber < 100)
-              {
-
-                if(gameState.currentPlayer.playerType =="easy ai")
-                  AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
-                else
-                  AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
-              }
-
-            else
-            {
-              println("Entering Easy vs Hard")
-              println("easy ai : "+score1+" medium ai : "+score2)
-              StdIn.readLine()
-              if(newCurrentPlayer.playerType == "easy ai")
-              {
-                val newScores = scores :+ ((newCurrentPlayer.playerType,score1),(newNextPlayer.playerType,score2))
-                AiVsAi(0,"easy vs hard",r,shipClass,0,0,0,newScores)
-              }
-              else {
-                val newScores = scores :+ ((newCurrentPlayer.playerType, score2), (newNextPlayer.playerType, score1))
-                AiVsAi(0, "easy vs hard", r, shipClass, 0, 0, 0, newScores)
-              }            }
-          }
+            AiVsAi(!turn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
         }
-        else
-        {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-          if(gameState.currentPlayer.playerType == "easy ai")
+        else {
+          if(gameState.nextPlayer.playerType == "beginner ai")
           {
-            easyVsMedium(r,newGameState,nextTarget)
+            val newScores = scores :+ (((gameState.nextPlayer.playerType,score1),(gameState.currentPlayer.playerType,score2)))
+            AiVsAi(true,"beginner vs hard",r,shipClass,0,0,0,newScores)
           }
           else {
-            val orientation = {
-              if (nextTarget._1.nonEmpty)
-                nextTarget._2
-              else {
-                val randomOrientation = r.nextInt(2)
-                if (randomOrientation == 0)
-                  "H"
-                else
-                  "V"
-              }
-            }
-            val positionsToTarget = GameHandlerUtil.middleAiGetNextPosition(positionShot, orientation, newCurrentPlayer.enemyGrid)
-            val nextPositions = {
-              if (nextTarget._1.isEmpty)
-                positionsToTarget
-              else
-                nextTarget._1.tail ++ positionsToTarget
-            }
-            val newNextTarget = (nextPositions, orientation)
-            easyVsMedium(r, newGameState, newNextTarget)
+            val newScores = scores :+ ((gameState.nextPlayer.playerType, score2), (gameState.currentPlayer.playerType, score1))
+            AiVsAi(true, "beginner vs hard", r, shipClass, 0, 0, 0, newScores)
           }
         }
       }
     }
 
+    /**
+      * The function that handle the rounds of an easy Ai vs a hard Ai
+      * @param r : the random variable that will be user by the Ais
+      * @param gameState : the game state that contains the current player and the next player
+      * @param nextTarget : the potential targets of the hard Ai
+      * @param checkHorizontal : This param will the hard Ai if it should check again the horizontal
+      */
     @tailrec
     def easyVsHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),
                        checkHorizontal : Boolean)
     {
-      val positionShot = {
-        if (gameState.currentPlayer.playerType == "easy ai")
-        {
-          AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
-        }
-        else
-        {
-          if(nextTarget._1._1.isEmpty && nextTarget._2._1.isEmpty)
-            AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
-          else
-          {
-            GameHandlerUtil.hardAiGetNextShotPosition(nextTarget)
-          }
-        }
-
-      }
-      if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
+      if (Player.checkFleetState(gameState.currentPlayer.fleet))
       {
-        val newCurrentPlayer = Player.missShot(gameState.currentPlayer,positionShot)
-
-        val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
-
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-
-        if(gameState.currentPlayer.playerType == "easy ai")
-          easyVsHard(r,newGameState,nextTarget,checkHorizontal)
+        if (gameState.currentPlayer.playerType == "beginner ai") {
+          val updateGameState = BeginnerAiActions.beginnerAiTurn(gameState,r)
+          easyVsHard(r, updateGameState,nextTarget,checkHorizontal)
+        }
         else
         {
-          val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
-          val checkHorizontalUpdated =
-          {
-            if(newNextTarget._2._1.isEmpty)
-              false
-            else
-              checkHorizontal
-          }
-          easyVsHard(r,newGameState,newNextTarget,checkHorizontalUpdated)
+          val aiHardTurn = HardAiActions.aiHardTurn(r,gameState,nextTarget,checkHorizontal)
+          easyVsHard(r,aiHardTurn._1,aiHardTurn._2._1,aiHardTurn._2._2)
         }
       }
-      else if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == 0)
-      {
-        val newCurrentPlayer = Player.successShot(gameState.currentPlayer,positionShot)
-        val newNextPlayer = Player.receiveSuccessShot(gameState.nextPlayer,positionShot)
-        if(!Player.checkShipState(newNextPlayer,positionShot))
-        {
-          if(Player.checkFleetState(newNextPlayer.fleet))
-          {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-            if(gameState.currentPlayer.playerType == "hard ai")
-            {
-              val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
-              val checkHorizontalUpdate = newNextTarget._2._1.nonEmpty
-              easyVsHard(r,newGameState,newNextTarget,checkHorizontalUpdate)
-            }
-            else
-              easyVsHard(r,newGameState,nextTarget,checkHorizontal)
-          }
+      else {
+        if (roundNumber < 100) {
+
+          if (gameState.nextPlayer.playerType == "beginner ai")
+            AiVsAi(!turn, roundType, r, shipClass, roundNumber + 1, score1 + 1, score2, scores)
           else
-          {
-            val newTurn = {
-              if(turn == 0)
-                1
-              else
-                0
-            }
-            if(roundNumber < 100)
-            {
-
-              if(gameState.currentPlayer.playerType =="easy ai")
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
-              else
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
-            }
-
-            else
-            {
-
-              println("Entering medium vs Hard")
-              println("easy ai : "+score1+" hard ai : "+score2)
-              StdIn.readLine()
-              if(newCurrentPlayer.playerType == "easy ai")
-              {
-                val newScores = scores :+ ((newCurrentPlayer.playerType,score1),(newNextPlayer.playerType,score2))
-                AiVsAi(0,"medium vs hard",r,shipClass,0,0,0,newScores)
-              }
-              else
-              {
-                val newScores = scores :+ ((newCurrentPlayer.playerType,score2),(newNextPlayer.playerType,score1))
-                AiVsAi(0,"medium vs hard",r,shipClass,0,0,0,newScores)
-              }
-            }
-          }
+            AiVsAi(!turn, roundType, r, shipClass, roundNumber + 1, score1, score2 + 1, scores)
         }
-        else
-        {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-          if(gameState.currentPlayer.playerType == "easy ai")
-          {
-            easyVsHard(r,newGameState,nextTarget,checkHorizontal)
+        else {
+          if (gameState.nextPlayer.playerType == "beginner ai") {
+            val newScores = scores :+ ((gameState.nextPlayer.playerType, score1), (gameState.currentPlayer.playerType, score2))
+            AiVsAi(true, "medium vs hard", r, shipClass, 0, 0, 0, newScores)
           }
-          else if(gameState.currentPlayer.playerType == "hard ai")
-          {
-            if(nextTarget._1._1.isEmpty && nextTarget._2._1.nonEmpty && checkHorizontal)
-            {
-              val horizontalPositions = GameHandlerUtil.middleAiGetNextPosition(positionShot,"H",newCurrentPlayer.enemyGrid)
-              val checkHorizontalUpdate = false
-              val verticalTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
-              val newNextTarget = ((horizontalPositions,"H"),verticalTarget._2)
-              easyVsHard(r,newGameState,newNextTarget,checkHorizontalUpdate)
-
-            }
-            else
-            {
-              val newNextTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
-              easyVsHard(r,newGameState,newNextTarget,checkHorizontal)
-            }
-
+          else {
+            val newScores = scores :+ ((gameState.nextPlayer.playerType, score2), (gameState.currentPlayer.playerType, score1))
+            AiVsAi(true, "medium vs hard", r, shipClass, 0, 0, 0, newScores)
           }
         }
       }
     }
 
+    /**
+      * The function that handle the rounds of an medium Ai vs a hard Ai
+      * @param r : the random variable that will be user by the Ais
+      * @param gameState: the game state that contains the current player and the next player
+      * @param nextTarget : the potential targets of the hard Ai
+      * @param checkHorizontal :  This param will the hard Ai if it should check again the horizontal
+      * @param mediumNextTarget : the potential targets of the medium Ai
+      */
     @tailrec
     def mediumVsHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),
-                   checkHorizontal : Boolean,mediumNextTarget :(List[Position],String))
+                   checkHorizontal : Boolean,mediumNextTarget :(List[Position],String)): Unit =
     {
-      val positionShot = {
-        if (gameState.currentPlayer.playerType == "medium ai")
-        {
-          if(mediumNextTarget._1.isEmpty)
-            AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
-          else
-          {
-            mediumNextTarget._1.head
-          }
+      if (Player.checkFleetState(gameState.currentPlayer.fleet))
+      {
+        if (gameState.currentPlayer.playerType == "medium ai") {
+          val updateGameState = MediumAiActions.mediumAiTurn(gameState,r,mediumNextTarget)
+          mediumVsHard(r, updateGameState._1,nextTarget,checkHorizontal,updateGameState._2)
         }
         else
         {
-          if(nextTarget._1._1.isEmpty && nextTarget._2._1.isEmpty)
-            AiInGameHandler.aiMakeAShot(gameState.currentPlayer,r)
-          else
-          {
-            GameHandlerUtil.hardAiGetNextShotPosition(nextTarget)
-          }
+          val aiHardTurn = HardAiActions.aiHardTurn(r,gameState,nextTarget,checkHorizontal)
+          mediumVsHard(r,aiHardTurn._1,aiHardTurn._2._1,aiHardTurn._2._2,mediumNextTarget)
         }
       }
-      if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
+      else
       {
-        val newCurrentPlayer = Player.missShot(gameState.currentPlayer,positionShot)
+        if(roundNumber < 100)
+        {
 
-        val newNextPlayer = Player.receiveMissShot(gameState.nextPlayer,positionShot)
-
-        val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-
-        if(gameState.currentPlayer.playerType == "medium ai")
-          {
-            val newMediumNextTarget = {
-              if(mediumNextTarget._1.isEmpty)
-                mediumNextTarget
-              else
-                (mediumNextTarget._1.tail,mediumNextTarget._2)
-            }
-            mediumVsHard(r,newGameState,nextTarget,checkHorizontal,newMediumNextTarget)
-          }
+          if(gameState.nextPlayer.playerType == "medium ai")
+            AiVsAi(!turn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
+          else
+            AiVsAi(!turn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
+        }
         else
         {
-          val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
-          val checkHorizontalUpdated =
+          if(gameState.nextPlayer.playerType == "medium ai")
           {
-            if(newNextTarget._2._1.isEmpty)
-              false
-            else
-              checkHorizontal
-          }
-          mediumVsHard(r,newGameState,newNextTarget,checkHorizontalUpdated,mediumNextTarget)
-        }
-      }
-      else if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == 0)
-      {
-        val newCurrentPlayer = Player.successShot(gameState.currentPlayer,positionShot)
-        val newNextPlayer = Player.receiveSuccessShot(gameState.nextPlayer,positionShot)
-        if(!Player.checkShipState(newNextPlayer,positionShot))
-        {
-          if(Player.checkFleetState(newNextPlayer.fleet))
-          {
-            val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-            if(gameState.currentPlayer.playerType == "hard ai")
-            {
-              val newNextTarget = GameHandlerUtil.deleteUsedTargetByHardAi(nextTarget,positionShot)
-              val checkHorizontalUpdate = newNextTarget._2._1.nonEmpty
-              mediumVsHard(r,newGameState,newNextTarget,checkHorizontalUpdate,mediumNextTarget)
-            }
-            else
-            {
-              val newMediumNextTarget = (List.empty[Position],"")
-              mediumVsHard(r,newGameState,nextTarget,checkHorizontal,newMediumNextTarget)
-            }
+            val newScores = scores :+ ((gameState.nextPlayer.playerType,score1),(gameState.currentPlayer.playerType,score2))
+            AiVsAi(true,"Save file",r,shipClass,0,0,0,newScores)
           }
           else
           {
-            val newTurn = {
-              if(turn == 0)
-                1
-              else
-                0
-            }
-            if(roundNumber < 100)
-            {
-
-              if(gameState.currentPlayer.playerType == "medium ai")
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
-              else
-                AiVsAi(newTurn,roundType,r,shipClass,roundNumber+1,score1,score2+1,scores)
-            }
-
-            else
-            {
-
-              println("medium ai : "+score1+" hard ai : "+score2)
-              StdIn.readLine()
-              if(newCurrentPlayer.playerType == "medium ai")
-              {
-                val newScores = scores :+ ((newCurrentPlayer.playerType,score1),(newNextPlayer.playerType,score2))
-                AiVsAi(0,"Save file",r,shipClass,0,0,0,newScores)
-              }
-              else
-              {
-                val newScores = scores :+ ((newCurrentPlayer.playerType,score2),(newNextPlayer.playerType,score1))
-                AiVsAi(0,"Save FIle",r,shipClass,0,0,0,newScores)
-              }
-            }
-          }
-        }
-        else
-        {
-          val newGameState = GameState(newNextPlayer,newCurrentPlayer)
-          if(gameState.currentPlayer.playerType == "medium ai")
-          {
-            val orientation = {
-              if (mediumNextTarget._1.nonEmpty)
-                mediumNextTarget._2
-              else {
-                val randomOrientation = r.nextInt(2)
-                if (randomOrientation == 0)
-                  "H"
-                else
-                  "V"
-              }
-            }
-            val positionsToTarget = GameHandlerUtil.middleAiGetNextPosition(positionShot, orientation, newCurrentPlayer.enemyGrid)
-            val nextPositions = {
-              if (mediumNextTarget._1.isEmpty)
-                positionsToTarget
-              else
-                mediumNextTarget._1.tail ++ positionsToTarget
-            }
-            val newMediumNextTarget = (nextPositions, orientation)
-            mediumVsHard(r, newGameState, nextTarget,checkHorizontal,newMediumNextTarget)
-          }
-          else if(gameState.currentPlayer.playerType == "hard ai")
-          {
-            if(nextTarget._1._1.isEmpty && nextTarget._2._1.nonEmpty && checkHorizontal)
-            {
-              val horizontalPositions = GameHandlerUtil.middleAiGetNextPosition(positionShot,"H",newCurrentPlayer.enemyGrid)
-              val checkHorizontalUpdate = false
-              val verticalTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
-              val newNextTarget = ((horizontalPositions,"H"),verticalTarget._2)
-              mediumVsHard(r,newGameState,newNextTarget,checkHorizontalUpdate,mediumNextTarget)
-
-            }
-            else
-            {
-              val newNextTarget = GameHandlerUtil.getNextPositionToTargetForHardAi(nextTarget,positionShot,newCurrentPlayer.enemyGrid)
-              mediumVsHard(r,newGameState,newNextTarget,checkHorizontal,mediumNextTarget)
-            }
-
+            val newScores = scores :+ ((gameState.nextPlayer.playerType,score2),(gameState.currentPlayer.playerType,score1))
+            AiVsAi(true,"Save FIle",r,shipClass,0,0,0,newScores)
           }
         }
       }
     }
-
-
   }
-
 }

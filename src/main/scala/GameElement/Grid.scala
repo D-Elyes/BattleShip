@@ -1,7 +1,7 @@
 package GameElement
 
 /**
-  * This is the grid of the game
+  * This is the grid of the player
   *
   * @param grid : It is a list of list of Intger, a square is represented by one element of this list.
   *             Each element contains a number that has an interpretation :

@@ -1,12 +1,21 @@
 package GameUtilities
 
 import GameElement.{Grid, Player, Position, Ship}
-
 import scala.annotation.tailrec
 import scala.util.Random
 
-object AiInGameHandler {
+/**
+  * This class contains the functions that can be used for all the Ais
+  */
+object GeneralActionsForAi {
 
+  /**
+    * Generate a ship with its corresponding position
+    * @param shipSize : the size of the ship
+    * @param player : the player that will ad the ship
+    * @param r ; the random variable that the Ai will use
+    * @return : a tuple containing the ship with its corresponding positions
+    */
   @tailrec
   def generateShipWithPosition(shipSize : Int, player : Player, r : Random) : (List[Position],Ship) =
   {
@@ -14,9 +23,9 @@ object AiInGameHandler {
     val line = r.nextInt(10)
     val column = r.nextInt(10)
     val orientation = seizeOrientationShip(r)
-    if(GameHandlerUtil.positionLimitsCheck(Position(line,column),orientation,shipSize))
+    if(GeneralGameManagement.positionLimitsCheck(Position(line,column),orientation,shipSize))
       {
-        val positions = GameHandlerUtil.generateShipPosition(orientation,shipSize,Position(line,column))
+        val positions = GeneralGameManagement.generateShipPosition(orientation,shipSize,Position(line,column))
         if(!Player.occupiedPosition(player,positions))
         {
           (positions,ship)
@@ -30,10 +39,15 @@ object AiInGameHandler {
       {
         generateShipWithPosition(shipSize,player,r)
       }
-
-
   }
 
+  /**
+    * Generate a player with its position place on his grid
+    * @param shipsClass: the  list of ship that will be place
+    * @param r : the random variable that the Ai will use
+    * @param aiType : the type of the Ai
+    * @return : it return a player with its corresponding informations : his ships, his grids, his tupe
+    */
   def generatePlayerWithItsShip(shipsClass : List[(String,Int)],r:Random, aiType:String) : Player =
   {
     @tailrec
@@ -53,6 +67,12 @@ object AiInGameHandler {
     generatePlayerWithItsShipTailRec(player,0)
   }
 
+  /**
+    * the shot action of an Ai
+    * @param player : the player (Ai) that will make the shot
+    * @param r : the random variable that the Ai will use
+    * @return : The position of the shot
+    */
   def aiMakeAShot(player : Player,r:Random):Position =
   {
     val line= r.nextInt(10)
@@ -68,6 +88,11 @@ object AiInGameHandler {
     }
   }
 
+  /**
+    * Seize the orientation of a ship to be place on the gird
+    * @param r : the random varaible that the Ai will use
+    * @return : A string representing the orientation of the ship
+    */
   def seizeOrientationShip(r: Random) : String =
   {
     val orientation = r.nextInt(4)
@@ -78,5 +103,4 @@ object AiInGameHandler {
       case 3 => "VD"
     }
   }
-
 }
