@@ -3,9 +3,9 @@ package GameElement
 import scala.annotation.tailrec
 
 /**
-  *this class represents a player.
-  * This class will handle the action of the player.
-  * It will place the ships of the player on his grid, update the grids during the game
+  * this class represents a player.
+  * It will place the ships of the player on his grid, update the grids during the game, check the state of his ships
+  * A player can be a user (human) or can be an Ai
   * @param fleet : the fleet of the player coposed of his ships and its position on the grid
   * @param ownGrid : the grid of the player where he will put his ships and the result of the enemy shots
   * @param enemyGrid : the enemy grid where player will put the results of his shots
@@ -51,7 +51,7 @@ object Player
     */
   def occupiedPosition(player : Player,positions : List[Position]): Boolean =
   {
-    if(positions.size == 0)
+    if(positions.isEmpty)
       {
         false
       }

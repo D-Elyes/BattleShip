@@ -5,8 +5,18 @@ import GameElement.{Grid, Player, Position, Ship}
 import scala.annotation.tailrec
 import scala.util.Random
 
-object AiInGameHandler {
+/**
+  *
+  */
+object GeneralActionsForAi {
 
+  /**
+    *
+    * @param shipSize
+    * @param player
+    * @param r
+    * @return
+    */
   @tailrec
   def generateShipWithPosition(shipSize : Int, player : Player, r : Random) : (List[Position],Ship) =
   {
@@ -14,9 +24,9 @@ object AiInGameHandler {
     val line = r.nextInt(10)
     val column = r.nextInt(10)
     val orientation = seizeOrientationShip(r)
-    if(GameHandlerUtil.positionLimitsCheck(Position(line,column),orientation,shipSize))
+    if(GeneralGameManagement.positionLimitsCheck(Position(line,column),orientation,shipSize))
       {
-        val positions = GameHandlerUtil.generateShipPosition(orientation,shipSize,Position(line,column))
+        val positions = GeneralGameManagement.generateShipPosition(orientation,shipSize,Position(line,column))
         if(!Player.occupiedPosition(player,positions))
         {
           (positions,ship)
@@ -30,10 +40,15 @@ object AiInGameHandler {
       {
         generateShipWithPosition(shipSize,player,r)
       }
-
-
   }
 
+  /**
+    *
+    * @param shipsClass
+    * @param r
+    * @param aiType
+    * @return
+    */
   def generatePlayerWithItsShip(shipsClass : List[(String,Int)],r:Random, aiType:String) : Player =
   {
     @tailrec
@@ -68,6 +83,11 @@ object AiInGameHandler {
     }
   }
 
+  /**
+    *
+    * @param r
+    * @return
+    */
   def seizeOrientationShip(r: Random) : String =
   {
     val orientation = r.nextInt(4)
@@ -78,5 +98,4 @@ object AiInGameHandler {
       case 3 => "VD"
     }
   }
-
 }

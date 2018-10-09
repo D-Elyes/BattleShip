@@ -2,18 +2,15 @@ package Game
 
 import GameElement.Player
 import GameInterface.Render
-import GameUtilities.{AiLevelMatch, GameHandlerUtil, RoundUtil}
+import GameUtilities.{AiLevelMatch, GeneralGameManagement, GameRoundManagement}
 
 import scala.annotation.tailrec
 import scala.util.Random
 
 object BattleShip extends App {
 
-  case class GameState(currentPlayer : Player, nextPlayer : Player)
   val shipClass = List.apply(("Carrier",5),("Battleship",4),("Cruiser",3),("Submarine",3),("Destroyer",2))
   val r = Random
-
-  //("Carrier",5),("Battleship",4),("Cruiser",3),("Submarine",3)
   Game()
 
 
@@ -26,19 +23,19 @@ object BattleShip extends App {
     def mainLoop(): Unit =
     {
       Render.menuRederer()
-      val gameModeChoice = GameHandlerUtil.gameModeChoice()
+      val gameModeChoice = GeneralGameManagement.gameModeChoice()
       gameModeChoice match
       {
         case "1" =>{
-          RoundUtil.playerVsPlayer(0,shipClass)
+          GameRoundManagement.playerVsPlayer(true,shipClass)
         }
         case "2" =>{
           Render.aiLevelChoice()
-          val choiceLevel = GameHandlerUtil.aiLevelInput()
-          RoundUtil.playerVsAi(0,choiceLevel,r,shipClass)
+          val choiceLevel = GeneralGameManagement.aiLevelInput()
+          GameRoundManagement.playerVsAi(true,choiceLevel,r,shipClass)
         }
         case "3" =>{
-          AiLevelMatch.AiVsAi(0,"easy vs medium",r,shipClass,0,0,0,List.empty[((String,Int),(String,Int))])
+          AiLevelMatch.AiVsAi(true,"beginner vs medium",r,shipClass,0,0,0,List.empty[((String,Int),(String,Int))])
         }
         case "4" =>{
           Render.gameClose()

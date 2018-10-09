@@ -24,9 +24,9 @@ object Render {
           y match
           {
             case -1 => print("_ ")
-            case 0 => print(Console.GREEN +"S "+Console.WHITE)
+            case 0 => print(Console.GREEN_B +"S "+Console.RESET)
             case 1 => print("X ")
-            case 2 => print(Console.RED +"S " +Console.WHITE)
+            case 2 => print(Console.RED_B +"S "+Console.RESET)
           }
       })
       println()

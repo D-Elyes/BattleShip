@@ -1,4 +1,4 @@
-I Name; score; AI Name2; score2
-medium ai 77; easy ai 23
-hard ai 99; easy ai 1
-hard ai 87; medium ai 13
+AI Name; score; AI Name2; score2
+beginner ai; 22; medium ai; 78
+hard ai; 97; beginner ai; 3
+medium ai; 16; hard ai; 84
