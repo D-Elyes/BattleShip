@@ -2,26 +2,27 @@ package GameUtilities
 
 import Game.BattleShip.{Game}
 import GameElement.{Player, Position}
-
 import scala.annotation.tailrec
 import scala.util.Random
 
 /**
-  *
+  * This class will handle the different round that the user can play
+  * He can play vs another player or vs one of the three levels of the Ai
   */
 object GameRoundManagement {
 
   /**
-    *
-    * @param turn
-    * @param shipClass
+    * This function will handler the round between two users
+    * @param turn : represents who's gonna play first : True player 1, false player 2
+    *             When the same game is restarted this param changes
+    * @param shipClass : the ships that a player can use
     */
   def playerVsPlayer(turn : Boolean, shipClass : List[(String,Int)]) {
+    //initialisation of the 2 players
     println("First Player ship settings")
     val player1 = UserAsPlayerShipsInit.generatePlayerWithItsShip(shipClass, "player 1")
     println("Second Player setting")
     val player2 = UserAsPlayerShipsInit.generatePlayerWithItsShip(shipClass, "player 2")
-
     if (turn) {
       println("Player 1 Starts")
       val gameState = GameState(player1, player2)
@@ -34,8 +35,8 @@ object GameRoundManagement {
     }
 
     /**
-      *
-      * @param gameState
+      * This function handle the actions of a player when it is his turn to make a shot
+      * @param gameState : the game state containing the informations about the two players
       */
     @tailrec
     def battle(gameState: GameState) {
@@ -58,14 +59,17 @@ object GameRoundManagement {
   }
 
   /**
+    * This function contain the three functions that will handle a round of a player vs the three different level of Ai
     *
-    * @param turn
-    * @param level
-    * @param r
-    * @param shipClass
+    * @param turn : represents who's gonna play first : True player , false the Ai
+    *             When the same game is restarted this param changes
+    * @param level : the level of the Ai
+    * @param r : The random variable that the Ais will use
+    * @param shipClass : the ships that a player can use
     */
   def playerVsAi(turn : Boolean, level : Int,r:Random,shipClass : List[(String,Int)]): Unit =
   {
+    //Initialisation of the player and the Ai
     val player = UserAsPlayerShipsInit.generatePlayerWithItsShip(shipClass,"player")
     val ai = GeneralActionsForAi.generatePlayerWithItsShip(shipClass,r,"ai")
     if(turn)
@@ -92,13 +96,12 @@ object GameRoundManagement {
       }
 
     /**
-      *
-      * @param r
-      * @param gameState
+      * This function will handle the round between a player and an easy Ai
+      * @param r : The random variable that the Ais will use
+      * @param gameState : contains the informations of the player and the Ai
       */
     @tailrec
     def playerVsAiEasy(r:Random,gameState : GameState): Unit = {
-
       if (Player.checkFleetState(gameState.currentPlayer.fleet)) {
         if (gameState.currentPlayer.playerType == "player") {
           val updateGameState = UserAsPlayerInGameActions.userTurn(gameState)
@@ -122,10 +125,10 @@ object GameRoundManagement {
     }
 
     /**
-      *
-      * @param r
-      * @param gameState
-      * @param nextTarget
+      * This function will handle the round between a player and a medium Ai
+      * @param r : The random variable that the Ais will use
+      * @param gameState : contains the informations of the player and the Ai
+      * @param nextTarget : The potential targets of the medium Ai
       */
     @tailrec
     def playerVsAiMedium(r:Random,gameState : GameState,nextTarget :(List[Position],String))
@@ -156,11 +159,11 @@ object GameRoundManagement {
     }
 
     /**
-      *
-      * @param r
-      * @param gameState
-      * @param nextTarget
-      * @param checkHorizontal
+      * This function will handle the round between a player and a hard Ai
+      * @param r : The random variable that the Ais will use
+      * @param gameState : contains the informations of the player and the Ai
+      * @param nextTarget : the potential targets of the hard ai
+      * @param checkHorizontal : Tells the hard Ai if it should check for the horizontal positions or not
       */
     @tailrec
     def playerVsAiHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),

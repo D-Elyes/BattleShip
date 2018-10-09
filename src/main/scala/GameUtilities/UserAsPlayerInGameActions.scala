@@ -33,6 +33,11 @@ object UserAsPlayerInGameActions {
     }
   }
 
+  /**
+    * The behaviour of the user when it is its turn
+    * @param gameState : contains the information of the players
+    * @return : the game state updated depending on the user's actions
+    */
   def userTurn(gameState : GameState) : GameState =
   {
     Render.playerGridRenderer(gameState.currentPlayer.ownGrid)

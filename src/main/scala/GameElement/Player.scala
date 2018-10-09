@@ -16,7 +16,7 @@ case class Player(fleet : List[(List[Position],Ship)], ownGrid : Grid, enemyGrid
 object Player
 {
   /**
-    *This function will add the ship of the player on the grid
+    *This function will add the ship of the player on his grid
     * @param player : The player that will place the ships
     * @param fleetElement : the fleet of the player composed by the ships and their position
     * @return : player with his greed containing his ships (the element of the listing containing a square of the

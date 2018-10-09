@@ -1,29 +1,36 @@
 package GameUtilities
 
 import java.io.{BufferedWriter, FileWriter}
-
 import Game.BattleShip.Game
 import GameElement.{Player, Position}
-
 import scala.annotation.tailrec
 import scala.util.Random
 
+/**
+  * This class will handle the rounds between the different AIs
+  */
 object AiLevelMatch {
 
   /**
-    *
-    * @param turn
-    * @param roundType
-    * @param r
-    * @param shipClass
-    * @param roundNumber
-    * @param score1
-    * @param score2
-    * @param scores
+    * The main function that will be called by the main class to handle the different rounds between the AIs
+    * @param turn : This param will tell who's gonna start the shot first. WThis param will change for every restart
+    *             of the same game
+    * @param roundType : the type of the match, who's Ai gonna face who. It takes three values :
+    *                  - easy vs medium
+    *                  - easy vs hard
+    *                  - medium vs hard
+    * @param r : the random variable that the Ais will use
+    * @param shipClass : The different ships that a player can use
+    * @param roundNumber : the number of the round, in a game between two Ais there is 100 rounds
+    * @param score1 : the score of the first player
+    * @param score2 : the score of the second player
+    * @param scores : The final scores of the three versus
     */
   def AiVsAi(turn : Boolean, roundType : String,r:Random,shipClass : List[(String,Int)],
              roundNumber :Int,score1 :Int,score2:Int,scores : List[((String,Int),(String,Int))]): Unit = {
 
+    //Initialisation of the different Ais according the roundType
+    //And lunching the game
     if(roundType == "beginner vs medium")
       {
         val easyAi = GeneralActionsForAi.generatePlayerWithItsShip(shipClass,r, "beginner ai")
@@ -75,14 +82,15 @@ object AiLevelMatch {
       }
 
     /**
-      *
-      * @param r
-      * @param gameState
-      * @param nextTarget
+      * The function that handle the rounds of an easy Ai vs a medium Ai
+      * @param r : the random variable that will be user by the Ais
+      * @param gameState : the game state that contains the current player and the next player
+      * @param nextTarget : the potential tarets of the medium Ai
       */
     @tailrec
     def easyVsMedium(r:Random,gameState : GameState,nextTarget :(List[Position],String)): Unit =
     {
+      //check if the player still has ships
       if (Player.checkFleetState(gameState.currentPlayer.fleet)) {
         if (gameState.currentPlayer.playerType == "beginner ai") {
           val updateGameState = BeginnerAiActions.beginnerAiTurn(gameState,r)
@@ -95,6 +103,7 @@ object AiLevelMatch {
       }
       else {
         if (roundNumber <100) {
+          //if it didn't do 100 rounds, restart the round with the same Ais
           if(gameState.nextPlayer.playerType =="beginner ai")
             AiVsAi(!turn,roundType,r,shipClass,roundNumber+1,score1+1,score2,scores)
           else
@@ -115,11 +124,11 @@ object AiLevelMatch {
     }
 
     /**
-      *
-      * @param r
-      * @param gameState
-      * @param nextTarget
-      * @param checkHorizontal
+      * The function that handle the rounds of an easy Ai vs a hard Ai
+      * @param r : the random variable that will be user by the Ais
+      * @param gameState : the game state that contains the current player and the next player
+      * @param nextTarget : the potential targets of the hard Ai
+      * @param checkHorizontal : This param will the hard Ai if it should check again the horizontal
       */
     @tailrec
     def easyVsHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),
@@ -159,12 +168,12 @@ object AiLevelMatch {
     }
 
     /**
-      *
-      * @param r
-      * @param gameState
-      * @param nextTarget
-      * @param checkHorizontal
-      * @param mediumNextTarget
+      * The function that handle the rounds of an medium Ai vs a hard Ai
+      * @param r : the random variable that will be user by the Ais
+      * @param gameState: the game state that contains the current player and the next player
+      * @param nextTarget : the potential targets of the hard Ai
+      * @param checkHorizontal :  This param will the hard Ai if it should check again the horizontal
+      * @param mediumNextTarget : the potential targets of the medium Ai
       */
     @tailrec
     def mediumVsHard(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),

@@ -2,7 +2,6 @@ package GameUtilities
 
 
 import GameElement.{Position}
-
 import scala.annotation.tailrec
 import scala.io.StdIn
 

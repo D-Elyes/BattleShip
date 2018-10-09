@@ -6,16 +6,16 @@ import scala.io.StdIn
 import scala.util.Random
 
 /**
-  *
+  * This class contains the functions that represent the action of the hard Ai
   */
 object HardAiActions {
 
   /**
-    *
-    * @param nextTargets
-    * @return
+    * Get the next target position that the Ai will aim
+    * @param nextTargets : the potential targets the the Ai will aim
+    * @return : the position that the Ai will aim
     */
-  def hardAiGetNextTarget(nextTargets : ((List[Position],String),(List[Position],String))): Position =
+  def hardAiGetNextTargets(nextTargets : ((List[Position],String),(List[Position],String))): Position =
   {
     if (nextTargets._1._1.nonEmpty)
     {
@@ -26,13 +26,13 @@ object HardAiActions {
 
       nextTargets._2._1.head
     }
-
   }
+
   /**
-    *
-    * @param nextTargets
-    * @param position
-    * @return
+    * Delete the position of the target that the Ai has just aimed
+    * @param nextTargets : The potential next targets
+    * @param position : the position that the Ai has just aimed
+    * @return : the potential next targets updated
     */
   def deleteUsedTargetByHardAi(nextTargets : ((List[Position],String),(List[Position],String)),position : Position) : ((List[Position],String),(List[Position],String)) =
   {
@@ -51,11 +51,11 @@ object HardAiActions {
   }
 
   /**
-    *
-    * @param targets
-    * @param position
-    * @param grid
-    * @return
+    * got the potential targets for the next turns
+    * @param targets : the potential targets that are already stored
+    * @param position : the position of the last successful shot
+    * @param grid : the enemy's grid
+    * @return : a tuple containing the potential targets at the horizontal and at the vertical
     */
   def getNextPositionToTargetForHardAi(targets : ((List[Position],String),(List[Position],String)),position : Position, grid : Grid) : ((List[Position],String),(List[Position],String))=
   {
@@ -80,27 +80,27 @@ object HardAiActions {
   }
 
   /**
-    *
-    * @param gameState
-    * @param nextTarger
-    * @param r
-    * @return
+    * Get the next position for the Ai to aim
+    * @param gameState : contains the information of the players
+    * @param nextTarger : the potential next targets, can be empty
+    * @param r : the random variable that the ai will use
+    * @return : a position that the Ai will aim for its next turn
     */
-  def getNextShoPosition(gameState: GameState,nextTarger : ((List[Position],String),(List[Position],String)),r:Random) : Position =
+  def getNextShotPosition(gameState: GameState,nextTarger : ((List[Position],String),(List[Position],String)),r:Random) : Position =
   {
     if(nextTarger._1._1.isEmpty && nextTarger._2._1.isEmpty)
       GeneralActionsForAi.aiMakeAShot(gameState.currentPlayer,r)
     else
     {
-      HardAiActions.hardAiGetNextTarget(nextTarger)
+      HardAiActions.hardAiGetNextTargets(nextTarger)
     }
   }
 
   /**
-    *
-    * @param checkHorizontaol
-    * @param nextTargets
-    * @return
+    * Update if the Ai should check for the horizontal position or not
+    * @param checkHorizontaol : says if the Ai should check for the horizontal positions or not
+    * @param nextTargets : the potential next targets
+    * @return : return true if the Ai should check, else false
     */
   def updateCheckHorizontal(checkHorizontaol : Boolean,nextTargets : ((List[Position],String),(List[Position],String))) : Boolean =
   {
@@ -110,10 +110,19 @@ object HardAiActions {
       checkHorizontaol
   }
 
+  /**
+    * The behaviour of the Ai when it is its turn
+    * @param r :the random variable that the ai will use
+    * @param gameState : ontains the information of the players
+    * @param nextTarget : the potential next targets
+    * @param checkHorizontal : says if the Ai should check for the horizontal positions or not
+    * @return : a tuple of the updated game state depending on the action of the Ai and the potential targets with the information
+    *         if the Ai should check for horizontal positions or not
+    */
   def aiHardTurn(r:Random,gameState : GameState,nextTarget : ((List[Position],String),(List[Position],String)),
                   checkHorizontal : Boolean) : (GameState, (((List[Position],String),(List[Position],String)),Boolean)) =
   {
-    val positionShot = getNextShoPosition(gameState,nextTarget,r)
+    val positionShot = getNextShotPosition(gameState,nextTarget,r)
     if(gameState.nextPlayer.ownGrid.grid(positionShot.x)(positionShot.y) == -1)
       {
         val newCurrentPlayer = Player.missShot(gameState.currentPlayer,positionShot)

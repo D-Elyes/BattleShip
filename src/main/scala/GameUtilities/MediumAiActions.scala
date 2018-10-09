@@ -6,18 +6,18 @@ import scala.io.StdIn
 import scala.util.Random
 
 /**
-  *
+  * his class contains the functions that represent the action of the medium Ai
   */
 object MediumAiActions {
 
   /**
-    *
-    * @param currentTarget
-    * @param orientation
-    * @param grid
-    * @return
+    * Get the next potential targets for the medium Ai
+    * @param currentTarget : the potential targets that are already stored
+    * @param orientation : the orientation of the positions to target
+    * @param grid : the enemy's grid
+    * @return : a list of positions to target for the medium AI
     */
-  def mediumAiGetNextTargets(currentTarget: Position,orientation : String,grid : Grid):List[Position] =
+  def mediumAiGetNextTargets(currentTarget: Position,orientation : String,grid : Grid): List[Position] =
   {
     if(orientation == "V")
     {
@@ -64,11 +64,11 @@ object MediumAiActions {
   }
 
   /**
-    *
-    * @param nextTargets
-    * @param gameState
-    * @param r
-    * @return
+    * Get the next positions that the Ai will aim at its next turn
+    * @param targets : the potential next targets
+    * @param gameState : contains the information of the players
+    * @param r : the random variable that the ai will use
+    * @return : the next position to shot at
     */
   def getNextPositionShot(targets:(List[Position],String),gameState : GameState, r : Random) : Position =
   {
@@ -81,9 +81,9 @@ object MediumAiActions {
   }
 
   /**
-    *
-    * @param targets
-    * @return
+    * delete the position of the last shot
+    * @param targets : the potential targets
+    * @return : a tuple of list of positions with the orientation
     */
   def deleteUsedShot(targets:(List[Position],String)) : (List[Position],String) =
   {
@@ -94,10 +94,10 @@ object MediumAiActions {
   }
 
   /**
-    *
-    * @param nextTargets
-    * @param r
-    * @return
+    * get the orientation of the next targets
+    * @param nextTargets : the potential targets that are already stored
+    * @param r : the random variable that the ai will use
+    * @return : the orientation of the next positions to target
     */
   def getOrientation(nextTargets :(List[Position],String),r:Random) : String =
   {
@@ -114,11 +114,11 @@ object MediumAiActions {
   }
 
   /**
-    *
-    * @param gameState
-    * @param r
-    * @param nextTargets
-    * @return
+    * The behaviour of the Ai when it is its turn
+    * @param gameState : ontains the information of the players
+    * @param r : the random variable that the ai will use
+    * @param nextTargets : the potential next targets
+    * @return : a tuple of the updated game state and the list of the potential targets with its orientation
     */
   def mediumAiTurn(gameState : GameState,r : Random,nextTargets :(List[Position],String)) : (GameState,(List[Position],String)) =
   {

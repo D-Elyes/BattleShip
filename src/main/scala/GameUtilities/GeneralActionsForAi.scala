@@ -1,21 +1,20 @@
 package GameUtilities
 
 import GameElement.{Grid, Player, Position, Ship}
-
 import scala.annotation.tailrec
 import scala.util.Random
 
 /**
-  *
+  * This class contains the functions that can be used for all the Ais
   */
 object GeneralActionsForAi {
 
   /**
-    *
-    * @param shipSize
-    * @param player
-    * @param r
-    * @return
+    * Generate a ship with its corresponding position
+    * @param shipSize : the size of the ship
+    * @param player : the player that will ad the ship
+    * @param r ; the random variable that the Ai will use
+    * @return : a tuple containing the ship with its corresponding positions
     */
   @tailrec
   def generateShipWithPosition(shipSize : Int, player : Player, r : Random) : (List[Position],Ship) =
@@ -43,11 +42,11 @@ object GeneralActionsForAi {
   }
 
   /**
-    *
-    * @param shipsClass
-    * @param r
-    * @param aiType
-    * @return
+    * Generate a player with its position place on his grid
+    * @param shipsClass: the  list of ship that will be place
+    * @param r : the random variable that the Ai will use
+    * @param aiType : the type of the Ai
+    * @return : it return a player with its corresponding informations : his ships, his grids, his tupe
     */
   def generatePlayerWithItsShip(shipsClass : List[(String,Int)],r:Random, aiType:String) : Player =
   {
@@ -68,6 +67,12 @@ object GeneralActionsForAi {
     generatePlayerWithItsShipTailRec(player,0)
   }
 
+  /**
+    * the shot action of an Ai
+    * @param player : the player (Ai) that will make the shot
+    * @param r : the random variable that the Ai will use
+    * @return : The position of the shot
+    */
   def aiMakeAShot(player : Player,r:Random):Position =
   {
     val line= r.nextInt(10)
@@ -84,9 +89,9 @@ object GeneralActionsForAi {
   }
 
   /**
-    *
-    * @param r
-    * @return
+    * Seize the orientation of a ship to be place on the gird
+    * @param r : the random varaible that the Ai will use
+    * @return : A string representing the orientation of the ship
     */
   def seizeOrientationShip(r: Random) : String =
   {
